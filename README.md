@@ -1,0 +1,1 @@
+# japanese-50kana

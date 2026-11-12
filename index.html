@@ -28,18 +28,44 @@
         </div>
         <div>
           <h1 class="font-bold text-lg leading-tight">日文50音 & N5 檢定助手</h1>
-          <p class="text-xs text-indigo-200">五十音記憶・N5單字庫・文法例句・雙模式測驗</p>
+          <p class="text-xs text-indigo-200">高擬真語音・N5單字庫・文法例句・測驗</p>
         </div>
       </div>
       <div class="flex items-center space-x-2 text-sm bg-indigo-700/60 px-3 py-1.5 rounded-lg border border-indigo-500/30">
         <i class="fas fa-trophy text-amber-400"></i>
-        <span>累計積分：<strong id="total-score-header">0</strong></span>
+        <span>積分：<strong id="total-score-header">0</strong></span>
+      </div>
+    </div>
+
+    <!-- 語音設定控制列 (新增) -->
+    <div class="bg-indigo-700/90 border-t border-indigo-500/40 px-4 py-2 text-xs">
+      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center space-x-2 flex-grow sm:flex-grow-0">
+          <i class="fas fa-headset text-indigo-200"></i>
+          <label for="voice-select" class="text-indigo-100 whitespace-nowrap">發音聲優：</label>
+          <select id="voice-select" onchange="onVoiceChange()" class="bg-indigo-800 text-white border border-indigo-500 rounded px-2 py-1 text-xs focus:outline-none max-w-[180px] sm:max-w-[240px] truncate">
+            <option value="">自動偵測最佳日語語音...</option>
+          </select>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-1.5">
+            <span class="text-indigo-200">語速：</span>
+            <button onclick="setSpeechRate(0.7)" id="rate-0.7" class="rate-btn px-2 py-0.5 rounded bg-indigo-800 text-indigo-200 hover:bg-indigo-500">慢速</button>
+            <button onclick="setSpeechRate(0.88)" id="rate-0.88" class="rate-btn px-2 py-0.5 rounded bg-white text-indigo-700 font-bold">自然</button>
+            <button onclick="setSpeechRate(1.05)" id="rate-1.05" class="rate-btn px-2 py-0.5 rounded bg-indigo-800 text-indigo-200 hover:bg-indigo-500">正常</button>
+          </div>
+          <button onclick="testVoice()" class="bg-amber-400 hover:bg-amber-300 text-indigo-950 font-bold px-2.5 py-0.5 rounded transition flex items-center space-x-1">
+            <i class="fas fa-volume-up"></i>
+            <span>試聽</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- Navigation Tabs -->
-  <div class="bg-white border-b border-slate-200 shadow-sm sticky top-[60px] z-40">
+  <div class="bg-white border-b border-slate-200 shadow-sm sticky top-[98px] z-40">
     <div class="max-w-6xl mx-auto px-4 flex space-x-1 sm:space-x-4 overflow-x-auto no-scrollbar">
       <button onclick="switchTab('kana')" id="tab-btn-kana" class="tab-btn active border-b-2 border-indigo-600 text-indigo-600 font-medium px-3 py-3 text-sm flex items-center space-x-1.5 whitespace-nowrap">
         <i class="fas fa-th"></i>
@@ -83,9 +109,13 @@
           </button>
         </div>
 
-        <div class="flex space-x-2 w-full sm:w-auto justify-center">
+        <div class="flex items-center space-x-2 w-full sm:w-auto justify-center">
           <button id="type-seion" onclick="setKanaType('seion')" class="px-3 py-1.5 text-xs sm:text-sm rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-700 font-medium">清音</button>
           <button id="type-dakuon" onclick="setKanaType('dakuon')" class="px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-slate-200 text-slate-600 font-medium hover:bg-slate-50">濁音 / 半濁音</button>
+          <label class="flex items-center space-x-1.5 text-xs text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg cursor-pointer select-none" title="勾選後點擊假名會同時朗讀代表單字，發音更完整自然">
+            <input type="checkbox" id="speak-with-word" class="rounded text-indigo-600 focus:ring-indigo-500">
+            <span>連讀例詞</span>
+          </label>
         </div>
       </div>
 
@@ -104,7 +134,6 @@
     <!-- 3. N5 核心單字 SECTION -->
     <section id="section-vocab" class="tab-content hidden">
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
-        <!-- Category Filters -->
         <div class="flex flex-wrap gap-2 w-full md:w-auto">
           <button onclick="filterVocab('all')" id="vcat-all" class="vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-indigo-600 text-white font-medium">全部單字</button>
           <button onclick="filterVocab('noun')" id="vcat-noun" class="vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium">名詞</button>
@@ -112,7 +141,6 @@
           <button onclick="filterVocab('adj')" id="vcat-adj" class="vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium">形容詞</button>
           <button onclick="filterVocab('time')" id="vcat-time" class="vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium">時間/方位</button>
         </div>
-        <!-- Search Input -->
         <div class="relative w-full md:w-64">
           <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-sm"></i>
           <input type="text" id="vocab-search" oninput="renderVocabList()" placeholder="搜尋假名、漢字或中文..." class="w-full pl-9 pr-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500">
@@ -125,13 +153,11 @@
     <!-- 4. 記憶閃卡 SECTION -->
     <section id="section-cards" class="tab-content hidden">
       <div class="max-w-md mx-auto">
-        <!-- Deck Switcher -->
         <div class="flex bg-slate-200/70 p-1 rounded-xl mb-5">
           <button id="deck-kana" onclick="switchDeck('kana')" class="flex-1 py-1.5 rounded-lg text-sm font-semibold bg-white text-indigo-600 shadow-sm transition">50音清音卡</button>
           <button id="deck-vocab" onclick="switchDeck('vocab')" class="flex-1 py-1.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-indigo-600 transition">N5 單字卡</button>
         </div>
 
-        <!-- Flashcard Container -->
         <div id="flashcard" onclick="flipCard()" class="perspective w-full h-80 cursor-pointer">
           <div id="flashcard-inner" class="relative w-full h-full duration-500 transform-style-3d shadow-xl rounded-2xl border border-slate-200 bg-white">
             <!-- Front -->
@@ -172,7 +198,6 @@
           </div>
         </div>
 
-        <!-- Controls -->
         <div class="flex justify-between items-center mt-6 px-2">
           <button onclick="prevCard()" class="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-medium shadow-sm hover:bg-slate-50 flex items-center space-x-2">
             <i class="fas fa-arrow-left"></i>
@@ -190,7 +215,6 @@
     <!-- 5. 隨堂測驗 SECTION -->
     <section id="section-quiz" class="tab-content hidden max-w-xl mx-auto">
       <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <!-- Mode Selector -->
         <div class="flex bg-slate-100 p-1 rounded-xl mb-6">
           <button id="qmode-kana" onclick="setQuizMode('kana')" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-white text-indigo-600 shadow-sm transition">
             五十音讀音測驗
@@ -203,19 +227,17 @@
           </button>
         </div>
 
-        <!-- Quiz Header -->
         <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
           <div>
             <span id="quiz-mode-badge" class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">五十音模式</span>
             <h2 class="text-base font-bold text-slate-800">請選出正確的對應答案</h2>
           </div>
           <div class="text-right">
-            <span class="text-xs text-slate-400">本次答對題數</span>
+            <span class="text-xs text-slate-400">連續答對</span>
             <div id="quiz-streak" class="text-xl font-bold text-emerald-600">0 題</div>
           </div>
         </div>
 
-        <!-- Question Area -->
         <div id="quiz-box">
           <div class="mb-6 text-center bg-slate-50 rounded-xl py-6 px-4 border border-slate-100 relative">
             <button id="quiz-audio-btn" onclick="playQuizAudio()" class="absolute top-3 right-3 text-indigo-600 hover:text-indigo-800 p-2 bg-white rounded-full shadow-sm border border-slate-200" title="聆聽發音">
@@ -225,12 +247,10 @@
             <div id="quiz-sub-hint" class="text-xs text-slate-400 mt-2">點擊右上角喇叭可聽發音</div>
           </div>
 
-          <!-- Options -->
           <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5"></div>
         </div>
 
-        <!-- Quiz Feedback / Next -->
-        <div id="quiz-feedback" class="hidden text-center py-3 px-4 rounded-xl mb-4 text-sm font-medium"></div>
+        <div id="quiz-feedback" class="hidden text-left py-3 px-4 rounded-xl mb-4 text-sm font-medium"></div>
         <button id="quiz-next-btn" onclick="generateQuizQuestion()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow hover:bg-indigo-700 transition hidden">
           下一題 <i class="fas fa-arrow-right ml-1"></i>
         </button>
@@ -239,7 +259,6 @@
 
     <!-- 6. N5 文法大全 SECTION -->
     <section id="section-grammar" class="tab-content hidden">
-      <!-- Grammar Category Tabs -->
       <div class="flex space-x-2 mb-6 overflow-x-auto no-scrollbar">
         <button onclick="filterGrammar('all')" id="gcat-all" class="gcat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white shadow-sm whitespace-nowrap">全部文法 (12則)</button>
         <button onclick="filterGrammar('particle')" id="gcat-particle" class="gcat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap">核心助詞篇</button>
@@ -254,84 +273,178 @@
 
   <!-- Footer -->
   <footer class="bg-slate-100 border-t border-slate-200 py-4 text-center text-xs text-slate-500">
-    <p>日文 50 音 & JLPT N5 檢定自學系統 &bull; 支援語音朗讀與多維度刷題練習</p>
+    <p>日文 50 音 & JLPT N5 檢定自學系統 &bull; 建議使用 Chrome / Safari / Edge 獲得最佳自然語音體驗</p>
   </footer>
 
   <script>
-    // --- 語音合成引擎 ---
-    function speakJP(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ja-JP';
-        utterance.rate = 0.88;
-        window.speechSynthesis.speak(utterance);
+    // ==========================================
+    // 升級版高擬真日語語音合成引擎 (TTS Engine)
+    // ==========================================
+    let jpVoices = [];
+    let selectedVoice = null;
+    let currentSpeechRate = 0.88;
+    let speakTimeout = null;
+
+    // 載入並自動排序最佳日語聲優
+    function loadJapaneseVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const allVoices = window.speechSynthesis.getVoices();
+      jpVoices = allVoices.filter(v => v.lang.includes('ja') || v.lang.includes('JP'));
+
+      const selectEl = document.getElementById('voice-select');
+      if (!selectEl) return;
+
+      if (jpVoices.length === 0) {
+        selectEl.innerHTML = '<option value="">系統預設日語語音</option>';
+        return;
       }
+
+      // 依自然度優先權排序（Natural / Online / Google / Apple Kyoko / O-Ren 優先）
+      const priorityKeywords = ['Natural', 'Online', 'Google', 'Kyoko', 'O-Ren', 'Nanami', 'Keita', 'Haruka'];
+      jpVoices.sort((a, b) => {
+        const scoreA = priorityKeywords.findIndex(k => a.name.includes(k));
+        const scoreB = priorityKeywords.findIndex(k => b.name.includes(k));
+        const valA = scoreA === -1 ? 99 : scoreA;
+        const valB = scoreB === -1 ? 99 : scoreB;
+        return valA - valB;
+      });
+
+      selectEl.innerHTML = '';
+      jpVoices.forEach((voice, index) => {
+        const opt = document.createElement('option');
+        opt.value = index;
+        // 簡化顯示名稱讓手機版更好看
+        const cleanName = voice.name.replace('Microsoft ', '').replace('Google ', '').replace('Japanese', '日語');
+        opt.textContent = `${cleanName} ${voice.localService ? '' : '(雲端高音質)'}`;
+        selectEl.appendChild(opt);
+      });
+
+      selectedVoice = jpVoices[0];
+    }
+
+    // 監聽語音列表非同步載入完成事件（Chrome/Android 必備）
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = loadJapaneseVoices;
+    }
+
+    function onVoiceChange() {
+      const idx = document.getElementById('voice-select').value;
+      if (idx !== '' && jpVoices[idx]) {
+        selectedVoice = jpVoices[idx];
+        testVoice();
+      }
+    }
+
+    function setSpeechRate(rate) {
+      currentSpeechRate = rate;
+      document.querySelectorAll('.rate-btn').forEach(btn => {
+        btn.className = "rate-btn px-2 py-0.5 rounded bg-indigo-800 text-indigo-200 hover:bg-indigo-500";
+      });
+      const activeBtn = document.getElementById(`rate-${rate}`);
+      if (activeBtn) {
+        activeBtn.className = "rate-btn px-2 py-0.5 rounded bg-white text-indigo-700 font-bold";
+      }
+    }
+
+    function testVoice() {
+      speakJP('こんにちは。一緒に日本語を勉強しましょう。', false);
+    }
+
+    // 核心發音函式：加入緩衝與防截斷機制
+    function speakJP(text, isSingleKana = false) {
+      if (!('speechSynthesis' in window) || !text) return;
+
+      // 清除前一次未完成的延遲任務
+      if (speakTimeout) clearTimeout(speakTimeout);
+      window.speechSynthesis.cancel();
+
+      // 解決單一假名過短導致尾音突兀截斷的問題
+      let processedText = text.trim();
+      if (isSingleKana || processedText.length <= 2) {
+        // 加上日文句號引導語調自然下降收尾，並預留音訊啟動緩衝
+        processedText = `${processedText}。`;
+      }
+
+      speakTimeout = setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance(processedText);
+        utterance.lang = 'ja-JP';
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
+        }
+        // 單音節稍微放慢一點點，聽起來更清楚飽滿
+        utterance.rate = isSingleKana ? Math.max(0.75, currentSpeechRate - 0.08) : currentSpeechRate;
+        utterance.pitch = 1.02;
+        utterance.volume = 1.0;
+
+        // 防止部分瀏覽器垃圾回收機制提早中斷語音
+        window._currentUtterance = utterance;
+        window.speechSynthesis.speak(utterance);
+      }, 60);
     }
 
     // --- 1. 五十音資料庫 ---
     const seionData = [
-      { hira: 'あ', kata: 'ア', roma: 'a', origin: '安', word: '朝 (あさ)', meaning: '早晨' },
-      { hira: 'い', kata: 'イ', roma: 'i', origin: '以', word: '犬 (いぬ)', meaning: '狗' },
-      { hira: 'う', kata: 'ウ', roma: 'u', origin: '宇', word: '海 (うみ)', meaning: '大海' },
-      { hira: 'え', kata: 'エ', roma: 'e', origin: '衣', word: '駅 (えき)', meaning: '車站' },
-      { hira: 'お', kata: 'オ', roma: 'o', origin: '於', word: 'お茶 (おちゃ)', meaning: '茶' },
+      { hira: 'あ', kata: 'ア', roma: 'a', origin: '安', word: '朝 (あさ)', readWord: 'あさ', meaning: '早晨' },
+      { hira: 'い', kata: 'イ', roma: 'i', origin: '以', word: '犬 (いぬ)', readWord: 'いぬ', meaning: '狗' },
+      { hira: 'う', kata: 'ウ', roma: 'u', origin: '宇', word: '海 (うみ)', readWord: 'うみ', meaning: '大海' },
+      { hira: 'え', kata: 'エ', roma: 'e', origin: '衣', word: '駅 (えき)', readWord: 'えき', meaning: '車站' },
+      { hira: 'お', kata: 'オ', roma: 'o', origin: '於', word: 'お茶 (おちゃ)', readWord: 'おちゃ', meaning: '茶' },
 
-      { hira: 'か', kata: 'カ', roma: 'ka', origin: '加', word: '傘 (かさ)', meaning: '雨傘' },
-      { hira: 'き', kata: 'キ', roma: 'ki', origin: '幾', word: '木 (き)', meaning: '樹木' },
-      { hira: 'く', kata: 'ク', roma: 'ku', origin: '久', word: '車 (くるま)', meaning: '車子' },
-      { hira: 'け', kata: 'ケ', roma: 'ke', origin: '計', word: '今朝 (けさ)', meaning: '今天早晨' },
-      { hira: 'こ', kata: 'コ', roma: 'ko', origin: '己', word: '声 (こえ)', meaning: '聲音' },
+      { hira: 'か', kata: 'カ', roma: 'ka', origin: '加', word: '傘 (かさ)', readWord: 'かさ', meaning: '雨傘' },
+      { hira: 'き', kata: 'キ', roma: 'ki', origin: '幾', word: '木 (き)', readWord: 'き', meaning: '樹木' },
+      { hira: 'く', kata: 'ク', roma: 'ku', origin: '久', word: '車 (くるま)', readWord: 'くるま', meaning: '車子' },
+      { hira: 'け', kata: 'ケ', roma: 'ke', origin: '計', word: '今朝 (けさ)', readWord: 'けさ', meaning: '今天早晨' },
+      { hira: 'こ', kata: 'コ', roma: 'ko', origin: '己', word: '声 (こえ)', readWord: 'こえ', meaning: '聲音' },
 
-      { hira: 'さ', kata: 'サ', roma: 'sa', origin: '左', word: '魚 (さかな)', meaning: '魚' },
-      { hira: 'し', kata: 'シ', roma: 'shi', origin: '之', word: '塩 (しお)', meaning: '鹽巴' },
-      { hira: 'す', kata: 'ス', roma: 'su', origin: '寸', word: '寿司 (すし)', meaning: '壽司' },
-      { hira: 'せ', kata: 'セ', roma: 'se', origin: '世', word: '世界 (せかい)', meaning: '世界' },
-      { hira: 'そ', kata: 'ソ', roma: 'so', origin: '曾', word: '空 (そら)', meaning: '天空' },
+      { hira: 'さ', kata: 'サ', roma: 'sa', origin: '左', word: '魚 (さかな)', readWord: 'さかな', meaning: '魚' },
+      { hira: 'し', kata: 'シ', roma: 'shi', origin: '之', word: '塩 (しお)', readWord: 'しお', meaning: '鹽巴' },
+      { hira: 'す', kata: 'ス', roma: 'su', origin: '寸', word: '寿司 (すし)', readWord: 'すし', meaning: '壽司' },
+      { hira: 'せ', kata: 'セ', roma: 'se', origin: '世', word: '世界 (せかい)', readWord: 'せかい', meaning: '世界' },
+      { hira: 'そ', kata: 'ソ', roma: 'so', origin: '曾', word: '空 (そら)', readWord: 'そら', meaning: '天空' },
 
-      { hira: 'た', kata: 'タ', roma: 'ta', origin: '太', word: '卵 (たまご)', meaning: '雞蛋' },
-      { hira: 'ち', kata: 'チ', roma: 'chi', origin: '知', word: '父 (ちち)', meaning: '父親' },
-      { hira: 'つ', kata: 'ツ', roma: 'tsu', origin: '川', word: '月 (つき)', meaning: '月亮' },
-      { hira: 'て', kata: 'テ', roma: 'te', origin: '手', word: '手 (て)', meaning: '手' },
-      { hira: 'と', kata: 'ト', roma: 'to', origin: '止', word: '時計 (とけい)', meaning: '時鐘' },
+      { hira: 'た', kata: 'タ', roma: 'ta', origin: '太', word: '卵 (たまご)', readWord: 'たまご', meaning: '雞蛋' },
+      { hira: 'ち', kata: 'チ', roma: 'chi', origin: '知', word: '父 (ちち)', readWord: 'ちち', meaning: '父親' },
+      { hira: 'つ', kata: 'ツ', roma: 'tsu', origin: '川', word: '月 (つき)', readWord: 'つき', meaning: '月亮' },
+      { hira: 'て', kata: 'テ', roma: 'te', origin: '手', word: '手 (て)', readWord: 'て', meaning: '手' },
+      { hira: 'と', kata: 'ト', roma: 'to', origin: '止', word: '時計 (とけい)', readWord: 'とけい', meaning: '時鐘' },
 
-      { hira: 'な', kata: 'ナ', roma: 'na', origin: '奈', word: '夏 (なつ)', meaning: '夏天' },
-      { hira: 'に', kata: 'ニ', roma: 'ni', origin: '仁', word: '肉 (にく)', meaning: '肉' },
-      { hira: 'ぬ', kata: 'ヌ', roma: 'nu', origin: '奴', word: '犬 (いぬ)', meaning: '狗' },
-      { hira: 'ね', kata: 'ネ', roma: 'ne', origin: '祢', word: '猫 (ねこ)', meaning: '貓' },
-      { hira: 'の', kata: 'ノ', roma: 'no', origin: '乃', word: '海苔 (のり)', meaning: '海苔' },
+      { hira: 'な', kata: 'ナ', roma: 'na', origin: '奈', word: '夏 (なつ)', readWord: 'なつ', meaning: '夏天' },
+      { hira: 'に', kata: 'ニ', roma: 'ni', origin: '仁', word: '肉 (にく)', readWord: 'にく', meaning: '肉' },
+      { hira: 'ぬ', kata: 'ヌ', roma: 'nu', origin: '奴', word: '犬 (いぬ)', readWord: 'いぬ', meaning: '狗' },
+      { hira: 'ね', kata: 'ネ', roma: 'ne', origin: '祢', word: '猫 (ねこ)', readWord: 'ねこ', meaning: '貓' },
+      { hira: 'の', kata: 'ノ', roma: 'no', origin: '乃', word: '海苔 (のり)', readWord: 'のり', meaning: '海苔' },
 
-      { hira: 'は', kata: 'ハ', roma: 'ha', origin: '波', word: '花 (はな)', meaning: '花朵' },
-      { hira: 'ひ', kata: 'ヒ', roma: 'hi', origin: '比', word: '光 (ひかり)', meaning: '光' },
-      { hira: 'ふ', kata: 'フ', roma: 'fu', origin: '不', word: '船 (ふね)', meaning: '船隻' },
-      { hira: 'へ', kata: 'ヘ', roma: 'he', origin: '部', word: '部屋 (へや)', meaning: '房間' },
-      { hira: 'ほ', kata: 'ホ', roma: 'ho', origin: '保', word: '本 (ほん)', meaning: '書本' },
+      { hira: 'は', kata: 'ハ', roma: 'ha', origin: '波', word: '花 (はな)', readWord: 'はな', meaning: '花朵' },
+      { hira: 'ひ', kata: 'ヒ', roma: 'hi', origin: '比', word: '光 (ひかり)', readWord: 'ひかり', meaning: '光' },
+      { hira: 'ふ', kata: 'フ', roma: 'fu', origin: '不', word: '船 (ふね)', readWord: 'ふね', meaning: '船隻' },
+      { hira: 'へ', kata: 'ヘ', roma: 'he', origin: '部', word: '部屋 (へや)', readWord: 'へや', meaning: '房間' },
+      { hira: 'ほ', kata: 'ホ', roma: 'ho', origin: '保', word: '本 (ほん)', readWord: 'ほん', meaning: '書本' },
 
-      { hira: 'ま', kata: 'マ', roma: 'ma', origin: '末', word: '町 (まち)', meaning: '城鎮' },
-      { hira: 'み', kata: 'ミ', roma: 'mi', origin: '美', word: '水 (みず)', meaning: '水' },
-      { hira: 'む', kata: 'ム', roma: 'mu', origin: '武', word: '虫 (むし)', meaning: '昆蟲' },
-      { hira: 'め', kata: 'メ', roma: 'me', origin: '女', word: '目 (め)', meaning: '眼睛' },
-      { hira: 'も', kata: 'モ', roma: 'mo', origin: '毛', word: '森 (もり)', meaning: '森林' },
+      { hira: 'ま', kata: 'マ', roma: 'ma', origin: '末', word: '町 (まち)', readWord: 'まち', meaning: '城鎮' },
+      { hira: 'み', kata: 'ミ', roma: 'mi', origin: '美', word: '水 (みず)', readWord: 'みず', meaning: '水' },
+      { hira: 'む', kata: 'ム', roma: 'mu', origin: '武', word: '虫 (むし)', readWord: 'むし', meaning: '昆蟲' },
+      { hira: 'め', kata: 'メ', roma: 'me', origin: '女', word: '目 (め)', readWord: 'め', meaning: '眼睛' },
+      { hira: 'も', kata: 'モ', roma: 'mo', origin: '毛', word: '森 (もり)', readWord: 'もり', meaning: '森林' },
 
-      { hira: 'や', kata: 'ヤ', roma: 'ya', origin: '也', word: '山 (やま)', meaning: '山' },
-      { hira: '', kata: '', roma: '', origin: '', word: '', meaning: '' },
-      { hira: 'ゆ', kata: 'ユ', roma: 'yu', origin: '由', word: '雪 (ゆき)', meaning: '雪' },
-      { hira: '', kata: '', roma: '', origin: '', word: '', meaning: '' },
-      { hira: 'よ', kata: 'ヨ', roma: 'yo', origin: '与', word: '夜 (よる)', meaning: '夜晚' },
+      { hira: 'や', kata: 'ヤ', roma: 'ya', origin: '也', word: '山 (やま)', readWord: 'やま', meaning: '山' },
+      { hira: '', kata: '', roma: '', origin: '', word: '', readWord: '', meaning: '' },
+      { hira: 'ゆ', kata: 'ユ', roma: 'yu', origin: '由', word: '雪 (ゆき)', readWord: 'ゆき', meaning: '雪' },
+      { hira: '', kata: '', roma: '', origin: '', word: '', readWord: '', meaning: '' },
+      { hira: 'よ', kata: 'ヨ', roma: 'yo', origin: '与', word: '夜 (よる)', readWord: 'よる', meaning: '夜晚' },
 
-      { hira: 'ら', kata: 'ラ', roma: 'ra', origin: '良', word: '桜 (さくら)', meaning: '櫻花' },
-      { hira: 'り', kata: 'リ', roma: 'ri', origin: '利', word: 'リンゴ', meaning: '蘋果' },
-      { hira: 'る', kata: 'ル', roma: 'ru', origin: '留', word: '留守 (るす)', meaning: '不在家' },
-      { hira: 'れ', kata: 'レ', roma: 're', origin: '礼', word: '歴史 (れきし)', meaning: '歷史' },
-      { hira: 'ろ', kata: 'ロ', roma: 'ro', origin: '呂', word: '六 (ろく)', meaning: '數字 6' },
+      { hira: 'ら', kata: 'ラ', roma: 'ra', origin: '良', word: '桜 (さくら)', readWord: 'さくら', meaning: '櫻花' },
+      { hira: 'り', kata: 'リ', roma: 'ri', origin: '利', word: 'リンゴ', readWord: 'りんご', meaning: '蘋果' },
+      { hira: 'る', kata: 'ル', roma: 'ru', origin: '留', word: '留守 (るす)', readWord: 'るす', meaning: '不在家' },
+      { hira: 'れ', kata: 'レ', roma: 're', origin: '礼', word: '歴史 (れきし)', readWord: 'れきし', meaning: '歷史' },
+      { hira: 'ろ', kata: 'ロ', roma: 'ro', origin: '呂', word: '六 (ろく)', readWord: 'ろく', meaning: '數字 6' },
 
-      { hira: 'わ', kata: 'ワ', roma: 'wa', origin: '和', word: '私 (わたし)', meaning: '我' },
-      { hira: '', kata: '', roma: '', origin: '', word: '', meaning: '' },
-      { hira: '', kata: '', roma: '', origin: '', word: '', meaning: '' },
-      { hira: '', kata: '', roma: '', origin: '', word: '', meaning: '' },
-      { hira: 'を', kata: 'ヲ', roma: 'wo', origin: '遠', word: '本を読む', meaning: '助詞(受詞)' },
+      { hira: 'わ', kata: 'ワ', roma: 'wa', origin: '和', word: '私 (わたし)', readWord: 'わたし', meaning: '我' },
+      { hira: '', kata: '', roma: '', origin: '', word: '', readWord: '', meaning: '' },
+      { hira: '', kata: '', roma: '', origin: '', word: '', readWord: '', meaning: '' },
+      { hira: '', kata: '', roma: '', origin: '', word: '', readWord: '', meaning: '' },
+      { hira: 'を', kata: 'ヲ', roma: 'wo', origin: '遠', word: '本を読む', readWord: 'ほんをよむ', meaning: '助詞(受詞)' },
 
-      { hira: 'ん', kata: 'ン', roma: 'n', origin: '无', word: '日本 (にほん)', meaning: '撥音' }
+      { hira: 'ん', kata: 'ン', roma: 'n', origin: '无', word: '日本 (にほん)', readWord: 'にほん', meaning: '撥音' }
     ];
 
     const dakuonData = [
@@ -344,7 +457,6 @@
 
     // --- 2. N5 高頻核心單字庫 ---
     const n5VocabList = [
-      // 名詞 (noun)
       { kana: 'がくせい', kanji: '学生', meaning: '學生', cat: 'noun', catName: '名詞', ex: '私は大学生です。(我是大學生。)' },
       { kana: 'せんせい', kanji: '先生', meaning: '老師', cat: 'noun', catName: '名詞', ex: '田中先生は優しいです。(田中老師很溫柔。)' },
       { kana: 'かいしゃいん', kanji: '会社員', meaning: '上班族 / 公司職員', cat: 'noun', catName: '名詞', ex: '父は会社員です。(父親是上班族。)' },
@@ -361,7 +473,6 @@
       { kana: 'じかん', kanji: '時間', meaning: '時間', cat: 'noun', catName: '名詞', ex: '今は時間がありません。(現在沒有時間。)' },
       { kana: 'しゃしん', kanji: '写真', meaning: '照片', cat: 'noun', catName: '名詞', ex: 'ここで写真を撮ってもいいですか。(可以在這裡拍照嗎？)' },
 
-      // 動詞 (verb)
       { kana: 'たべます', kanji: '食べます', meaning: '吃', cat: 'verb', catName: '動詞', ex: '朝ごはんを食べます。(吃早餐。)' },
       { kana: 'のみます', kanji: '飲みます', meaning: '喝', cat: 'verb', catName: '動詞', ex: '毎朝コーヒーを飲みます。(每天早上喝咖啡。)' },
       { kana: 'いきます', kanji: '行きます', meaning: '去', cat: 'verb', catName: '動詞', ex: '来月日本へ行きます。(下個月要去日本。)' },
@@ -376,7 +487,6 @@
       { kana: 'おきます', kanji: '起きます', meaning: '起床', cat: 'verb', catName: '動詞', ex: '毎朝７時に起きます。(每天早上7點起床。)' },
       { kana: 'ねます', kanji: '寝ます', meaning: '睡覺', cat: 'verb', catName: '動詞', ex: '１１時に寝ます。(11點睡覺。)' },
 
-      // 形容詞 (adj)
       { kana: 'おおきい', kanji: '大きい', meaning: '大的', cat: 'adj', catName: 'い形容詞', ex: 'この犬は大きいです。(這隻狗很大。)' },
       { kana: 'ちいさい', kanji: '小さい', meaning: '小的', cat: 'adj', catName: 'い形容詞', ex: '小さい鞄が欲しいです。(想要小包包。)' },
       { kana: 'あたらしい', kanji: '新しい', meaning: '新的', cat: 'adj', catName: 'い形容詞', ex: '新しいスマホを買いました。(買了新手機。)' },
@@ -391,7 +501,6 @@
       { kana: 'げんき', kanji: '元気', meaning: '有精神的 / 健康的', cat: 'adj', catName: 'な形容詞', ex: 'お元気ですか。(你好嗎？)' },
       { kana: 'ゆうめい', kanji: '有名', meaning: '有名的', cat: 'adj', catName: 'な形容詞', ex: 'ここは有名な観光地です。(這裡是有名的觀光勝地。)' },
 
-      // 時間與方位 (time)
       { kana: 'きょう', kanji: '今日', meaning: '今天', cat: 'time', catName: '時間/方位', ex: '今日は月曜日です。(今天是星期一。)' },
       { kana: 'あした', kanji: '明日', meaning: '明天', cat: 'time', catName: '時間/方位', ex: '明日は雨が降ります。(明天會下雨。)' },
       { kana: 'きのう', kanji: '昨日', meaning: '昨天', cat: 'time', catName: '時間/方位', ex: '昨日は休みでした。(昨天是休息日。)' },
@@ -403,7 +512,7 @@
       { kana: 'うしろ', kanji: '後ろ', meaning: '後面', cat: 'time', catName: '時間/方位', ex: '私の後ろに猫がいます。(我的後面有隻貓。)' }
     ];
 
-    // --- 3. N5 必考文法資料庫 (含多例句) ---
+    // --- 3. N5 必考文法資料庫 ---
     const n5GrammarList = [
       {
         cat: 'particle',
@@ -532,14 +641,10 @@
     let currentKanaType = 'seion';
     let currentVocabCat = 'all';
     let currentGrammarCat = 'all';
-    
-    // 閃卡狀態
-    let currentDeck = 'kana'; // 'kana' | 'vocab'
+    let currentDeck = 'kana';
     let currentCardIndex = 0;
     let isFlipped = false;
-
-    // 測驗狀態
-    let quizMode = 'kana'; // 'kana' | 'vocab-jp2zh' | 'vocab-zh2jp'
+    let quizMode = 'kana';
     let totalScore = 0;
     let quizStreak = 0;
     let currentQuizData = null;
@@ -610,7 +715,14 @@
 
         const char = currentScript === 'hira' ? item.hira : item.kata;
         const card = document.createElement('button');
-        card.onclick = () => speakJP(char);
+        card.onclick = () => {
+          const withWord = document.getElementById('speak-with-word').checked;
+          if (withWord && item.readWord) {
+            speakJP(`${item.hira}、${item.readWord}`, false);
+          } else {
+            speakJP(item.hira, true);
+          }
+        };
         card.className = "group relative bg-slate-50 hover:bg-indigo-50/80 border border-slate-200 hover:border-indigo-300 rounded-xl p-3 flex flex-col items-center justify-center transition shadow-sm active:scale-95";
         card.innerHTML = `
           <span class="text-xs text-slate-400 font-medium tracking-tight mb-1 group-hover:text-indigo-500">${item.roma}</span>
@@ -639,7 +751,7 @@
               <div class="text-xs text-slate-500 mt-0.5">源自漢字：<span class="font-bold text-slate-700">${item.origin}</span> &bull; 例詞：${item.word}</div>
             </div>
           </div>
-          <button onclick="speakJP('${item.hira}')" class="text-slate-400 hover:text-indigo-600 p-2 rounded-lg hover:bg-indigo-50">
+          <button onclick="speakJP('${item.hira}、${item.readWord}', false)" class="text-slate-400 hover:text-indigo-600 p-2 rounded-lg hover:bg-indigo-50">
             <i class="fas fa-volume-up"></i>
           </button>
         `;
@@ -683,7 +795,7 @@
           <div>
             <div class="flex justify-between items-start mb-2">
               <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-indigo-50 text-indigo-600">${item.catName}</span>
-              <button onclick="speakJP('${item.kana}')" class="text-indigo-600 hover:text-indigo-800 p-1.5 rounded-lg hover:bg-indigo-50" title="發音">
+              <button onclick="speakJP('${item.kana}', false)" class="text-indigo-600 hover:text-indigo-800 p-1.5 rounded-lg hover:bg-indigo-50" title="發音">
                 <i class="fas fa-volume-up"></i>
               </button>
             </div>
@@ -693,7 +805,7 @@
           </div>
           <div class="pt-2.5 border-t border-slate-100 text-xs text-slate-500 flex items-center justify-between">
             <span>${item.ex}</span>
-            <button onclick="speakJP('${item.ex.split('(')[0]}')" class="text-slate-400 hover:text-indigo-600 ml-2 flex-shrink-0" title="朗讀例句">
+            <button onclick="speakJP('${item.ex.split('(')[0]}', false)" class="text-slate-400 hover:text-indigo-600 ml-2 flex-shrink-0" title="朗讀例句">
               <i class="fas fa-play-circle text-sm"></i>
             </button>
           </div>
@@ -760,9 +872,9 @@
     function playCardAudio() {
       if (currentDeck === 'kana') {
         const item = validKanaCards[currentCardIndex];
-        speakJP(currentScript === 'hira' ? item.hira : item.kata);
+        speakJP(item.hira, true);
       } else {
-        speakJP(n5VocabList[currentCardIndex].kana);
+        speakJP(n5VocabList[currentCardIndex].kana, false);
       }
     }
 
@@ -808,7 +920,8 @@
         
         currentQuizData = {
           promptText: char,
-          audioText: char,
+          audioText: item.hira,
+          isSingleKana: true,
           correctAnswer: item.roma,
           explain: `${char} 的羅馬拼音是「${item.roma}」（字源：${item.origin}）`
         };
@@ -833,6 +946,7 @@
         currentQuizData = {
           promptText: displayTitle,
           audioText: item.kana,
+          isSingleKana: false,
           correctAnswer: item.meaning,
           explain: `${displayTitle} 的意思是「${item.meaning}」。例句：${item.ex}`
         };
@@ -857,6 +971,7 @@
         currentQuizData = {
           promptText: item.meaning,
           audioText: item.kana,
+          isSingleKana: false,
           correctAnswer: answerLabel,
           explain: `「${item.meaning}」的日文是 ${answerLabel}。例句：${item.ex}`
         };
@@ -888,7 +1003,7 @@
 
     function playQuizAudio() {
       if (currentQuizData && currentQuizData.audioText) {
-        speakJP(currentQuizData.audioText);
+        speakJP(currentQuizData.audioText, currentQuizData.isSingleKana);
       }
     }
 
@@ -900,10 +1015,8 @@
       const feedback = document.getElementById('quiz-feedback');
       feedback.classList.remove('hidden');
 
-      // 自動朗讀正確答案的日文發音加深記憶
-      speakJP(currentQuizData.audioText);
+      speakJP(currentQuizData.audioText, currentQuizData.isSingleKana);
 
-      // 標示按鈕顏色
       document.querySelectorAll('.quiz-opt-btn').forEach(btn => {
         btn.disabled = true;
         if (btn.innerText === currentQuizData.correctAnswer) {
@@ -958,7 +1071,7 @@
               <div class="font-bold text-slate-800 text-sm">${ex.jp}</div>
               <div class="text-xs text-slate-500 mt-0.5">${ex.zh}</div>
             </div>
-            <button onclick="speakJP('${ex.jp}')" class="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-100/50 flex-shrink-0" title="聆聽例句發音">
+            <button onclick="speakJP('${ex.jp}', false)" class="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-100/50 flex-shrink-0" title="聆聽例句發音">
               <i class="fas fa-volume-up"></i>
             </button>
           </div>
@@ -983,6 +1096,7 @@
 
     // --- 初始化 ---
     window.onload = () => {
+      loadJapaneseVoices();
       renderKanaGrid();
       renderOriginCards();
       renderVocabList();

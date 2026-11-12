@@ -3,217 +3,183 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>日文50音與N5檢定學習工具</title>
-  <!-- Tailwind CSS -->
+  <title>日文50音 & JLPT N5 全方位學習助手</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
-    body { 
-      font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif; 
-    }
+    body { font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif; }
     .perspective { perspective: 1000px; }
     .transform-style-3d { transform-style: preserve-3d; }
     .backface-hidden { backface-visibility: hidden; }
     .rotate-y-180 { transform: rotateY(180deg); }
-    
-    /* 隱藏滾動條但保持滾動 */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-100 selection:text-indigo-800">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- 頂部標題列 (Header) -->
+  <!-- Header -->
   <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('kana')">
-        <div class="w-10 h-10 bg-white text-indigo-600 rounded-xl flex items-center justify-center font-bold text-xl shadow-md">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-white text-indigo-600 rounded-xl flex items-center justify-center font-bold text-xl shadow">
           あ
         </div>
         <div>
-          <h1 class="font-bold text-lg leading-tight flex items-center gap-2">
-            日文50音 & N5 檢定助手
-            <span class="text-xs bg-indigo-500 text-indigo-100 px-2 py-0.5 rounded-full font-normal">繁體中文版</span>
-          </h1>
-          <p class="text-xs text-indigo-200">五十音發音・漢字字源聯想・N5文法速記</p>
+          <h1 class="font-bold text-lg leading-tight">日文50音 & N5 檢定助手</h1>
+          <p class="text-xs text-indigo-200">五十音記憶・N5單字庫・文法例句・雙模式測驗</p>
         </div>
       </div>
-      
-      <!-- 右上角統計與匯出說明 -->
-      <div class="flex items-center space-x-3">
-        <button onclick="openExportModal()" class="text-xs bg-indigo-500 hover:bg-indigo-400 text-white px-3 py-1.5 rounded-lg border border-indigo-400 transition flex items-center gap-1.5">
-          <i class="fas fa-share-alt"></i>
-          <span>如何網頁開啟/匯出</span>
-        </button>
+      <div class="flex items-center space-x-2 text-sm bg-indigo-700/60 px-3 py-1.5 rounded-lg border border-indigo-500/30">
+        <i class="fas fa-trophy text-amber-400"></i>
+        <span>累計積分：<strong id="total-score-header">0</strong></span>
       </div>
     </div>
   </header>
 
-  <!-- 導覽頁籤 (Navigation Tabs) -->
+  <!-- Navigation Tabs -->
   <div class="bg-white border-b border-slate-200 shadow-sm sticky top-[60px] z-40">
     <div class="max-w-6xl mx-auto px-4 flex space-x-1 sm:space-x-4 overflow-x-auto no-scrollbar">
-      <button onclick="switchTab('kana')" id="tab-btn-kana" class="tab-btn active border-b-2 border-indigo-600 text-indigo-600 font-medium px-4 py-3 text-sm flex items-center space-x-2 whitespace-nowrap">
-        <i class="fas fa-th-large"></i>
-        <span>50音互動圖表</span>
+      <button onclick="switchTab('kana')" id="tab-btn-kana" class="tab-btn active border-b-2 border-indigo-600 text-indigo-600 font-medium px-3 py-3 text-sm flex items-center space-x-1.5 whitespace-nowrap">
+        <i class="fas fa-th"></i>
+        <span>五十音圖表</span>
       </button>
-      <button onclick="switchTab('origin')" id="tab-btn-origin" class="tab-btn text-slate-500 hover:text-indigo-600 font-medium px-4 py-3 text-sm flex items-center space-x-2 whitespace-nowrap">
+      <button onclick="switchTab('origin')" id="tab-btn-origin" class="tab-btn text-slate-500 hover:text-indigo-600 font-medium px-3 py-3 text-sm flex items-center space-x-1.5 whitespace-nowrap">
         <i class="fas fa-font"></i>
-        <span>漢字演變與記憶</span>
+        <span>漢字字源</span>
       </button>
-      <button onclick="switchTab('cards')" id="tab-btn-cards" class="tab-btn text-slate-500 hover:text-indigo-600 font-medium px-4 py-3 text-sm flex items-center space-x-2 whitespace-nowrap">
+      <button onclick="switchTab('vocab')" id="tab-btn-vocab" class="tab-btn text-slate-500 hover:text-indigo-600 font-medium px-3 py-3 text-sm flex items-center space-x-1.5 whitespace-nowrap">
+        <i class="fas fa-list-ul"></i>
+        <span>N5 核心單字</span>
+      </button>
+      <button onclick="switchTab('cards')" id="tab-btn-cards" class="tab-btn text-slate-500 hover:text-indigo-600 font-medium px-3 py-3 text-sm flex items-center space-x-1.5 whitespace-nowrap">
         <i class="fas fa-clone"></i>
-        <span>互動單字閃卡</span>
+        <span>記憶閃卡</span>
       </button>
-      <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="tab-btn text-slate-500 hover:text-indigo-600 font-medium px-4 py-3 text-sm flex items-center space-x-2 whitespace-nowrap">
+      <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="tab-btn text-slate-500 hover:text-indigo-600 font-medium px-3 py-3 text-sm flex items-center space-x-1.5 whitespace-nowrap">
         <i class="fas fa-vial"></i>
-        <span>50音與N5實測</span>
+        <span>隨堂測驗</span>
       </button>
-      <button onclick="switchTab('grammar')" id="tab-btn-grammar" class="tab-btn text-slate-500 hover:text-indigo-600 font-medium px-4 py-3 text-sm flex items-center space-x-2 whitespace-nowrap">
+      <button onclick="switchTab('grammar')" id="tab-btn-grammar" class="tab-btn text-slate-500 hover:text-indigo-600 font-medium px-3 py-3 text-sm flex items-center space-x-1.5 whitespace-nowrap">
         <i class="fas fa-book-open"></i>
-        <span>N5 核心助詞與文法</span>
+        <span>N5 文法大全</span>
       </button>
     </div>
   </div>
 
-  <!-- 主要內容區 (Main Content Area) -->
+  <!-- Main Content Area -->
   <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
 
-    <!-- 1. 五十音圖表區塊 (KANA GRID) -->
+    <!-- 1. 五十音圖表 SECTION -->
     <section id="section-kana" class="tab-content">
-      <!-- 控制列 -->
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <!-- 平假名 / 片假名切換 -->
-        <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
-          <button id="script-hira" onclick="setScript('hira')" class="flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-semibold transition bg-white text-indigo-600 shadow-sm">
+        <div class="flex bg-slate-100 p-1 rounded-lg w-full sm:w-auto">
+          <button id="script-hira" onclick="setScript('hira')" class="flex-1 sm:flex-none px-6 py-1.5 rounded-md text-sm font-semibold transition bg-white text-indigo-600 shadow-sm">
             平假名 (Hiragana)
           </button>
-          <button id="script-kata" onclick="setScript('kata')" class="flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-semibold transition text-slate-600 hover:text-indigo-600">
+          <button id="script-kata" onclick="setScript('kata')" class="flex-1 sm:flex-none px-6 py-1.5 rounded-md text-sm font-semibold transition text-slate-600 hover:text-indigo-600">
             片假名 (Katakana)
           </button>
         </div>
 
-        <!-- 音韻類別切換 -->
         <div class="flex space-x-2 w-full sm:w-auto justify-center">
-          <button id="type-seion" onclick="setKanaType('seion')" class="px-4 py-2 text-xs sm:text-sm rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-700 font-semibold shadow-sm">清音</button>
-          <button id="type-dakuon" onclick="setKanaType('dakuon')" class="px-4 py-2 text-xs sm:text-sm rounded-lg border border-slate-200 text-slate-600 font-medium hover:bg-slate-50">濁音 / 半濁音</button>
-          <button id="type-youon" onclick="setKanaType('youon')" class="px-4 py-2 text-xs sm:text-sm rounded-lg border border-slate-200 text-slate-600 font-medium hover:bg-slate-50">拗音</button>
+          <button id="type-seion" onclick="setKanaType('seion')" class="px-3 py-1.5 text-xs sm:text-sm rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-700 font-medium">清音</button>
+          <button id="type-dakuon" onclick="setKanaType('dakuon')" class="px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-slate-200 text-slate-600 font-medium hover:bg-slate-50">濁音 / 半濁音</button>
         </div>
       </div>
 
-      <!-- 圖表說明 -->
-      <div class="text-xs text-slate-500 mb-3 flex items-center justify-between px-1">
-        <span><i class="fas fa-volume-up text-indigo-500 mr-1"></i> 點擊任意假名即可發音，並查看發音細節與例詞</span>
-        <span id="kana-count-badge" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium">46 音</span>
-      </div>
-
-      <!-- 五十音網格容器 -->
-      <div id="kana-grid-container" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
-        <!-- JS 動態生成格子 -->
-      </div>
+      <div id="kana-grid-container" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200"></div>
     </section>
 
-    <!-- 2. 漢字演變與記憶法區塊 (ORIGINS & MNEMONICS) -->
+    <!-- 2. 漢字演變記憶 SECTION -->
     <section id="section-origin" class="tab-content hidden">
-      <div class="mb-6 bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-indigo-900 text-sm flex items-start space-x-3">
-        <i class="fas fa-lightbulb text-indigo-600 text-lg mt-0.5"></i>
-        <div>
-          <strong class="font-bold">為什麼漢字字源記憶法最適合我們？</strong>
-          <p class="text-xs text-indigo-800 mt-1 leading-relaxed">
-            日文假名是由中文草書與楷書部首演變而來（例如平假名「あ」源自「安」的草書，片假名「ア」源自「偏旁阝/阝」）。掌握漢字字源，能讓您在幾分鐘內快速記住假名寫法！
-          </p>
-        </div>
+      <div class="mb-4 bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-indigo-900 text-sm">
+        <i class="fas fa-lightbulb text-indigo-600 mr-2"></i>
+        <strong>漢字起源記憶法：</strong> 日文平假名演變自中文草書，片假名則取自楷書偏旁。透過漢字字源聯想，能幫助您快速建立音與形的連結！
       </div>
-
-      <!-- 搜尋列 -->
-      <div class="mb-6 max-w-md mx-auto relative">
-        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-        <input 
-          type="text" 
-          id="origin-search" 
-          oninput="filterOriginCards()" 
-          placeholder="搜尋假名、羅馬拼音或漢字字源（如：a, 安, あ）..." 
-          class="w-full pl-11 pr-4 py-2.5 bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm shadow-sm"
-        />
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="origin-cards-container">
-        <!-- JS 動態生成字源卡片 -->
-      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="origin-cards-container"></div>
     </section>
 
-    <!-- 3. 單字與假名閃卡區塊 (FLASHCARDS) -->
+    <!-- 3. N5 核心單字 SECTION -->
+    <section id="section-vocab" class="tab-content hidden">
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <!-- Category Filters -->
+        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+          <button onclick="filterVocab('all')" id="vcat-all" class="vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-indigo-600 text-white font-medium">全部單字</button>
+          <button onclick="filterVocab('noun')" id="vcat-noun" class="vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium">名詞</button>
+          <button onclick="filterVocab('verb')" id="vcat-verb" class="vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium">動詞</button>
+          <button onclick="filterVocab('adj')" id="vcat-adj" class="vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium">形容詞</button>
+          <button onclick="filterVocab('time')" id="vcat-time" class="vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium">時間/方位</button>
+        </div>
+        <!-- Search Input -->
+        <div class="relative w-full md:w-64">
+          <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+          <input type="text" id="vocab-search" oninput="renderVocabList()" placeholder="搜尋假名、漢字或中文..." class="w-full pl-9 pr-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-indigo-500">
+        </div>
+      </div>
+
+      <div id="vocab-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- 4. 記憶閃卡 SECTION -->
     <section id="section-cards" class="tab-content hidden">
-      <div class="max-w-md mx-auto space-y-4">
-        <!-- 閃卡頂部資訊 -->
-        <div class="flex justify-between items-center text-xs text-slate-500 font-medium">
-          <span><i class="fas fa-hand-pointer mr-1"></i> 點擊卡片即可翻面</span>
-          <span id="card-counter">1 / 46</span>
+      <div class="max-w-md mx-auto">
+        <!-- Deck Switcher -->
+        <div class="flex bg-slate-200/70 p-1 rounded-xl mb-5">
+          <button id="deck-kana" onclick="switchDeck('kana')" class="flex-1 py-1.5 rounded-lg text-sm font-semibold bg-white text-indigo-600 shadow-sm transition">50音清音卡</button>
+          <button id="deck-vocab" onclick="switchDeck('vocab')" class="flex-1 py-1.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-indigo-600 transition">N5 單字卡</button>
         </div>
 
-        <!-- 3D 翻轉卡片主體 -->
+        <!-- Flashcard Container -->
         <div id="flashcard" onclick="flipCard()" class="perspective w-full h-80 cursor-pointer">
           <div id="flashcard-inner" class="relative w-full h-full duration-500 transform-style-3d shadow-xl rounded-2xl border border-slate-200 bg-white">
-            
-            <!-- 正面 (Front) -->
+            <!-- Front -->
             <div class="absolute inset-0 w-full h-full backface-hidden flex flex-col justify-between p-6 bg-gradient-to-br from-indigo-50/50 to-white rounded-2xl">
               <div class="flex justify-between items-center">
                 <span id="card-tag" class="px-2.5 py-1 text-xs font-semibold bg-indigo-100 text-indigo-700 rounded-full">50音練習</span>
-                <button onclick="event.stopPropagation(); playCardAudio()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center transition">
-                  <i class="fas fa-volume-up"></i>
+                <button onclick="event.stopPropagation(); playCardAudio()" class="text-indigo-600 hover:text-indigo-800 p-2">
+                  <i class="fas fa-volume-up text-xl"></i>
                 </button>
               </div>
-              
               <div class="text-center my-auto">
-                <div id="card-main-text" class="text-7xl font-bold text-slate-800 tracking-wider font-serif">あ</div>
-                <div id="card-sub-text" class="text-slate-400 text-xs mt-3">點擊查看羅馬音、漢字字源與例詞</div>
+                <div id="card-main-text" class="text-6xl sm:text-7xl font-bold text-slate-800 tracking-wider">あ</div>
+                <div id="card-sub-text" class="text-slate-400 text-sm mt-3">點擊卡片翻面查看解析</div>
               </div>
-
-              <div class="text-center text-xs text-slate-400 flex items-center justify-center gap-1">
-                <i class="fas fa-sync-alt"></i> 點擊卡片翻面
+              <div class="text-center text-xs text-slate-400">
+                <i class="fas fa-sync-alt mr-1"></i> 點擊翻轉
               </div>
             </div>
-
-            <!-- 背面 (Back) -->
+            <!-- Back -->
             <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 flex flex-col justify-between p-6 bg-indigo-600 text-white rounded-2xl">
               <div class="flex justify-between items-center">
-                <span id="card-roma-back" class="text-sm font-bold tracking-wide bg-indigo-700/80 px-3 py-1 rounded-full uppercase">a</span>
-                <button onclick="event.stopPropagation(); playCardAudio()" class="w-9 h-9 rounded-full bg-indigo-500 hover:bg-indigo-400 text-white flex items-center justify-center transition">
-                  <i class="fas fa-volume-up"></i>
+                <span id="card-roma-back" class="text-sm font-semibold tracking-wide bg-indigo-700/60 px-3 py-1 rounded-full">a</span>
+                <button onclick="event.stopPropagation(); playCardAudio()" class="text-white hover:text-indigo-200 p-2">
+                  <i class="fas fa-volume-up text-xl"></i>
                 </button>
               </div>
-
-              <div class="text-center my-auto space-y-3">
-                <div id="card-answer-title" class="text-4xl font-bold font-serif">あ (a)</div>
-                <div id="card-answer-desc" class="text-indigo-100 text-xs bg-indigo-700/40 py-2 px-3 rounded-lg leading-relaxed">
-                  字源演變源自「安」字的草書寫法
-                </div>
-                <div id="card-example" class="pt-2 text-xs text-indigo-200 border-t border-indigo-500/50">
-                  實用單字：朝 (あさ) - 早晨
+              <div class="text-center my-auto">
+                <div id="card-answer-title" class="text-3xl font-bold mb-2">あ (a)</div>
+                <div id="card-answer-desc" class="text-indigo-100 text-sm leading-relaxed px-2">字源來自「安」字的草書寫法</div>
+                <div id="card-example" class="mt-4 pt-3 border-t border-indigo-500/50 text-xs text-indigo-100">
+                  例詞：朝 (あさ) - 早晨
                 </div>
               </div>
-
               <div class="text-center text-xs text-indigo-200">
-                點擊卡片翻回正面
+                <i class="fas fa-check-circle mr-1"></i> 持續記憶中
               </div>
             </div>
-
           </div>
         </div>
 
-        <!-- 閃卡控制按鈕 -->
-        <div class="flex justify-between items-center pt-2">
-          <button onclick="prevCard()" class="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-medium shadow-sm hover:bg-slate-50 transition flex items-center space-x-2">
+        <!-- Controls -->
+        <div class="flex justify-between items-center mt-6 px-2">
+          <button onclick="prevCard()" class="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-medium shadow-sm hover:bg-slate-50 flex items-center space-x-2">
             <i class="fas fa-arrow-left"></i>
             <span>上一張</span>
           </button>
-          
-          <button onclick="randomCard()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200 transition">
-            <i class="fas fa-random mr-1"></i> 隨機卡片
-          </button>
-
-          <button onclick="nextCard()" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium shadow-md shadow-indigo-200 hover:bg-indigo-700 transition flex items-center space-x-2">
+          <span id="card-counter" class="text-sm font-medium text-slate-500">1 / 46</span>
+          <button onclick="nextCard()" class="px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-medium shadow-sm hover:bg-indigo-700 flex items-center space-x-2">
             <span>下一張</span>
             <i class="fas fa-arrow-right"></i>
           </button>
@@ -221,226 +187,100 @@
       </div>
     </section>
 
-    <!-- 4. 五十音與N5實測區塊 (QUIZ) -->
+    <!-- 5. 隨堂測驗 SECTION -->
     <section id="section-quiz" class="tab-content hidden max-w-xl mx-auto">
-      <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
-        
-        <!-- 測驗頂部資訊 -->
-        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <!-- Mode Selector -->
+        <div class="flex bg-slate-100 p-1 rounded-xl mb-6">
+          <button id="qmode-kana" onclick="setQuizMode('kana')" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-white text-indigo-600 shadow-sm transition">
+            五十音讀音測驗
+          </button>
+          <button id="qmode-vocab-jp2zh" onclick="setQuizMode('vocab-jp2zh')" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-indigo-600 transition">
+            N5單字 (日 &rarr; 中)
+          </button>
+          <button id="qmode-vocab-zh2jp" onclick="setQuizMode('vocab-zh2jp')" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-indigo-600 transition">
+            N5單字 (中 &rarr; 日)
+          </button>
+        </div>
+
+        <!-- Quiz Header -->
+        <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
           <div>
-            <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">JLPT N5 實力檢測</span>
-            <h2 class="text-lg font-bold text-slate-800">50音與基礎單字隨堂測驗</h2>
+            <span id="quiz-mode-badge" class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">五十音模式</span>
+            <h2 class="text-base font-bold text-slate-800">請選出正確的對應答案</h2>
           </div>
           <div class="text-right">
-            <span class="text-xs text-slate-400">目前得分</span>
-            <div id="quiz-score" class="text-2xl font-bold text-indigo-600">0</div>
+            <span class="text-xs text-slate-400">本次答對題數</span>
+            <div id="quiz-streak" class="text-xl font-bold text-emerald-600">0 題</div>
           </div>
         </div>
 
-        <!-- 題目區域 -->
+        <!-- Question Area -->
         <div id="quiz-box">
-          <div class="mb-6 text-center">
-            <span id="quiz-type-tag" class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-medium inline-block mb-3">
-              假名音譯題目
-            </span>
-            <div id="quiz-question" class="text-5xl font-bold text-slate-800 py-2 font-serif">さ</div>
-            <p id="quiz-sub-question" class="text-xs text-slate-400 mt-2">請選出相對應正確的羅馬拼音或中文意思：</p>
+          <div class="mb-6 text-center bg-slate-50 rounded-xl py-6 px-4 border border-slate-100 relative">
+            <button id="quiz-audio-btn" onclick="playQuizAudio()" class="absolute top-3 right-3 text-indigo-600 hover:text-indigo-800 p-2 bg-white rounded-full shadow-sm border border-slate-200" title="聆聽發音">
+              <i class="fas fa-volume-up"></i>
+            </button>
+            <div id="quiz-question" class="text-4xl sm:text-5xl font-bold text-slate-800">さ</div>
+            <div id="quiz-sub-hint" class="text-xs text-slate-400 mt-2">點擊右上角喇叭可聽發音</div>
           </div>
 
-          <!-- 選項列表 -->
-          <div id="quiz-options" class="grid grid-cols-2 gap-3 mb-4">
-            <!-- JS 動態插入 4 個選項 -->
-          </div>
+          <!-- Options -->
+          <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5"></div>
         </div>
 
-        <!-- 回饋提示區塊 -->
-        <div id="quiz-feedback" class="hidden text-center py-3 px-4 rounded-xl text-sm font-medium"></div>
-
-        <!-- 下一題按鈕 -->
-        <button id="quiz-next-btn" onclick="generateQuizQuestion()" class="w-full py-3.5 bg-indigo-600 text-white rounded-xl font-bold shadow-md shadow-indigo-200 hover:bg-indigo-700 transition hidden flex items-center justify-center space-x-2">
-          <span>進入下一題</span>
-          <i class="fas fa-arrow-right"></i>
+        <!-- Quiz Feedback / Next -->
+        <div id="quiz-feedback" class="hidden text-center py-3 px-4 rounded-xl mb-4 text-sm font-medium"></div>
+        <button id="quiz-next-btn" onclick="generateQuizQuestion()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow hover:bg-indigo-700 transition hidden">
+          下一題 <i class="fas fa-arrow-right ml-1"></i>
         </button>
       </div>
     </section>
 
-    <!-- 5. N5 核心助詞與文法區塊 (GRAMMAR) -->
+    <!-- 6. N5 文法大全 SECTION -->
     <section id="section-grammar" class="tab-content hidden">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- 卡片 1: N5 核心助詞 -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-          <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
-            <i class="fas fa-bookmark text-indigo-600 text-lg"></i>
-            <h3 class="text-base font-bold text-slate-800">N5 必考 7 大核心助詞解析</h3>
-          </div>
-
-          <div class="space-y-3">
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-              <div class="flex justify-between items-center font-bold text-slate-800">
-                <span class="text-indigo-600 text-lg font-serif">は (wa)</span>
-                <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-medium">主題標記</span>
-              </div>
-              <p class="text-xs text-slate-600">提示全句的主題，讀音讀作「わ (wa)」。</p>
-              <div class="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200/80 font-mono mt-1">
-                わたし<strong class="text-indigo-600">は</strong>学生です。(我是學生。)
-              </div>
-            </div>
-
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-              <div class="flex justify-between items-center font-bold text-slate-800">
-                <span class="text-indigo-600 text-lg font-serif">が (ga)</span>
-                <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-medium">主語 / 存在標記</span>
-              </div>
-              <p class="text-xs text-slate-600">強調特定主語，或搭配「能力/喜好/存在動詞」。</p>
-              <div class="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200/80 font-mono mt-1">
-                猫<strong class="text-indigo-600">が</strong>います。(有貓咪。)
-              </div>
-            </div>
-
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-              <div class="flex justify-between items-center font-bold text-slate-800">
-                <span class="text-indigo-600 text-lg font-serif">を (o)</span>
-                <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-medium">目的語標記</span>
-              </div>
-              <p class="text-xs text-slate-600">標示他動詞作用的對象或動作。</p>
-              <div class="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200/80 font-mono mt-1">
-                水<strong class="text-indigo-600">を</strong>飲みます。(喝水。)
-              </div>
-            </div>
-
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-              <div class="flex justify-between items-center font-bold text-slate-800">
-                <span class="text-indigo-600 text-lg font-serif">に (ni)</span>
-                <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-medium">時間 / 目的地 / 靜止點</span>
-              </div>
-              <p class="text-xs text-slate-600">用於具體時間點、目的地或存在位置。</p>
-              <div class="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200/80 font-mono mt-1">
-                7時<strong class="text-indigo-600">に</strong>起きます。(7點起床。)
-              </div>
-            </div>
-
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-              <div class="flex justify-between items-center font-bold text-slate-800">
-                <span class="text-indigo-600 text-lg font-serif">で (de)</span>
-                <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-medium">動作場所 / 工具手段</span>
-              </div>
-              <p class="text-xs text-slate-600">標示動作發生的地點，或使用的交通工具/工具。</p>
-              <div class="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200/80 font-mono mt-1">
-                バス<strong class="text-indigo-600">で</strong>行きます。(搭公車去。)
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 卡片 2: N5 必備文法句型 -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-          <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
-            <i class="fas fa-list-check text-indigo-600 text-lg"></i>
-            <h3 class="text-base font-bold text-slate-800">N5 入門基礎句型整理</h3>
-          </div>
-
-          <div class="space-y-3">
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1.5">
-              <div class="font-bold text-slate-800 text-sm">1. N1 は N2 です / ではありません</div>
-              <p class="text-xs text-slate-600">肯定與否定句：N1 是 N2 / N1 不是 N2。</p>
-              <div class="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200/80 font-mono">
-                例：これは本です。(這是書。)<br>
-                例：これは本ではありません。(這不是書。)
-              </div>
-            </div>
-
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1.5">
-              <div class="font-bold text-slate-800 text-sm">2. 存在句：あります vs います</div>
-              <p class="text-xs text-slate-600">「無生命物」使用 あります；「有生命物(人/動物)」使用 います。</p>
-              <div class="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200/80 font-mono">
-                例：部屋に机が<strong class="text-indigo-600">あります</strong>。(房間裡有桌子。)<br>
-                例：庭に犬が<strong class="text-indigo-600">います</strong>。(庭院裡有狗。)
-              </div>
-            </div>
-
-            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1.5">
-              <div class="font-bold text-slate-800 text-sm">3. 動詞 ます 形時態變化</div>
-              <p class="text-xs text-slate-600">叮嚀體禮貌形：現在肯定/否定、過去肯定/否定。</p>
-              <div class="text-xs text-slate-600 bg-white p-2.5 rounded border border-slate-200/80 font-mono space-y-1">
-                <div>&bull; 肯定：食べ<strong class="text-indigo-600">ます</strong> (吃)</div>
-                <div>&bull; 否定：食べ<strong class="text-indigo-600">ません</strong> (不吃)</div>
-                <div>&bull; 過去肯定：食べ<strong class="text-indigo-600">ました</strong> (吃了)</div>
-                <div>&bull; 過去否定：食べ<strong class="text-indigo-600">ませんでした</strong> (沒吃)</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <!-- Grammar Category Tabs -->
+      <div class="flex space-x-2 mb-6 overflow-x-auto no-scrollbar">
+        <button onclick="filterGrammar('all')" id="gcat-all" class="gcat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white shadow-sm whitespace-nowrap">全部文法 (12則)</button>
+        <button onclick="filterGrammar('particle')" id="gcat-particle" class="gcat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap">核心助詞篇</button>
+        <button onclick="filterGrammar('sentence')" id="gcat-sentence" class="gcat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap">基礎句型與時態</button>
+        <button onclick="filterGrammar('expression')" id="gcat-expression" class="gcat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap">願望・請求・比較</button>
       </div>
+
+      <div id="grammar-container" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
     </section>
 
   </main>
 
-  <!-- 匯出與開啟方式 Modal -->
-  <div id="export-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-slate-100 space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-        <h3 class="font-bold text-slate-800 text-base">如何匯出或在網頁開啟？</h3>
-        <button onclick="closeExportModal()" class="text-slate-400 hover:text-slate-600 text-lg px-2">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
-        <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-100 text-indigo-900">
-          <strong>1. 本地電腦直接開啟：</strong><br>
-          將本程式碼儲存為 <code class="bg-white px-1.5 py-0.5 rounded border text-indigo-700 font-bold">index.html</code> 檔案，直接按滑鼠雙擊，即可在 Chrome、Edge 或 Safari 等任何瀏覽器開啟！
-        </div>
-
-        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-          <strong>2. 匯出至協作平台 (如 Notion, Google Sites)：</strong><br>
-          &bull; <strong>Notion：</strong> 在頁面輸入 <code class="bg-white px-1 text-slate-800 font-bold">/embed</code>，填入 HTML 託管網址即可顯示。<br>
-          &bull; <strong>Google Sites：</strong> 點擊「插入」&rarr;「嵌入」&rarr; 選擇「嵌入程式碼」，貼上本檔全部 HTML 程式碼即可。
-        </div>
-
-        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-          <strong>3. 免費線上網址託管：</strong><br>
-          可上傳至 GitHub Pages、Netlify 或 Vercel，即可獲得一個永續免費的線上日文學習小工具網址！
-        </div>
-      </div>
-
-      <button onclick="closeExportModal()" class="w-full py-2.5 bg-indigo-600 text-white font-semibold rounded-xl text-xs hover:bg-indigo-700 transition">
-        我知道了
-      </button>
-    </div>
-  </div>
-
-  <!-- 頁尾 -->
+  <!-- Footer -->
   <footer class="bg-slate-100 border-t border-slate-200 py-4 text-center text-xs text-slate-500">
-    <p>日文 50 音 & JLPT N5 自學檢定輔助工具 &bull; 免安裝單檔網頁即可運作</p>
+    <p>日文 50 音 & JLPT N5 檢定自學系統 &bull; 支援語音朗讀與多維度刷題練習</p>
   </footer>
 
-  <!-- 主要邏輯 JavaScript 腳本 -->
   <script>
-    // 1. 語音合成 (Web Speech API)
-    function speakKana(text) {
+    // --- 語音合成引擎 ---
+    function speakJP(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'ja-JP';
-        utterance.rate = 0.85; // 稍微放慢發音速度
+        utterance.rate = 0.88;
         window.speechSynthesis.speak(utterance);
       }
     }
 
-    // 2. 50音完整資料庫
+    // --- 1. 五十音資料庫 ---
     const seionData = [
       { hira: 'あ', kata: 'ア', roma: 'a', origin: '安', word: '朝 (あさ)', meaning: '早晨' },
       { hira: 'い', kata: 'イ', roma: 'i', origin: '以', word: '犬 (いぬ)', meaning: '狗' },
       { hira: 'う', kata: 'ウ', roma: 'u', origin: '宇', word: '海 (うみ)', meaning: '大海' },
       { hira: 'え', kata: 'エ', roma: 'e', origin: '衣', word: '駅 (えき)', meaning: '車站' },
-      { hira: 'お', kata: 'オ', roma: 'o', origin: '於', word: '男 (おとこ)', meaning: '男性' },
+      { hira: 'お', kata: 'オ', roma: 'o', origin: '於', word: 'お茶 (おちゃ)', meaning: '茶' },
 
       { hira: 'か', kata: 'カ', roma: 'ka', origin: '加', word: '傘 (かさ)', meaning: '雨傘' },
       { hira: 'き', kata: 'キ', roma: 'ki', origin: '幾', word: '木 (き)', meaning: '樹木' },
       { hira: 'く', kata: 'ク', roma: 'ku', origin: '久', word: '車 (くるま)', meaning: '車子' },
-      { hira: 'け', kata: 'ケ', roma: 'ke', origin: '計', word: '朝 (けさ)', meaning: '今天早晨' },
+      { hira: 'け', kata: 'ケ', roma: 'ke', origin: '計', word: '今朝 (けさ)', meaning: '今天早晨' },
       { hira: 'こ', kata: 'コ', roma: 'ko', origin: '己', word: '声 (こえ)', meaning: '聲音' },
 
       { hira: 'さ', kata: 'サ', roma: 'sa', origin: '左', word: '魚 (さかな)', meaning: '魚' },
@@ -481,7 +321,7 @@
 
       { hira: 'ら', kata: 'ラ', roma: 'ra', origin: '良', word: '桜 (さくら)', meaning: '櫻花' },
       { hira: 'り', kata: 'リ', roma: 'ri', origin: '利', word: 'リンゴ', meaning: '蘋果' },
-      { hira: 'る', kata: 'ル', roma: 'ru', origin: '流', word: '部屋 (へや)', meaning: '房間' },
+      { hira: 'る', kata: 'ル', roma: 'ru', origin: '留', word: '留守 (るす)', meaning: '不在家' },
       { hira: 'れ', kata: 'レ', roma: 're', origin: '礼', word: '歴史 (れきし)', meaning: '歷史' },
       { hira: 'ろ', kata: 'ロ', roma: 'ro', origin: '呂', word: '六 (ろく)', meaning: '數字 6' },
 
@@ -489,7 +329,7 @@
       { hira: '', kata: '', roma: '', origin: '', word: '', meaning: '' },
       { hira: '', kata: '', roma: '', origin: '', word: '', meaning: '' },
       { hira: '', kata: '', roma: '', origin: '', word: '', meaning: '' },
-      { hira: 'を', kata: 'ヲ', roma: 'wo', origin: '乎', word: '水～飲む', meaning: '目的助詞' },
+      { hira: 'を', kata: 'ヲ', roma: 'wo', origin: '遠', word: '本を読む', meaning: '助詞(受詞)' },
 
       { hira: 'ん', kata: 'ン', roma: 'n', origin: '无', word: '日本 (にほん)', meaning: '撥音' }
     ];
@@ -502,22 +342,210 @@
       { hira: 'ぱ', kata: 'パ', roma: 'pa' }, { hira: 'ぴ', kata: 'ピ', roma: 'pi' }, { hira: 'ぷ', kata: 'プ', roma: 'pu' }, { hira: 'ぺ', kata: 'ペ', roma: 'pe' }, { hira: 'ぽ', kata: 'ポ', roma: 'po' }
     ];
 
-    const youonData = [
-      { hira: 'きゃ', kata: 'キャ', roma: 'kya' }, { hira: 'きゅ', kata: 'キュ', roma: 'kyu' }, { hira: 'きょ', kata: 'キョ', roma: 'kyo' },
-      { hira: 'しゃ', kata: 'シャ', roma: 'sha' }, { hira: 'しゅ', kata: 'シュ', roma: 'shu' }, { hira: 'しょ', kata: 'ショ', roma: 'sho' },
-      { hira: 'ちゃ', kata: 'チャ', roma: 'cha' }, { hira: 'ちゅ', kata: 'チュ', roma: 'chu' }, { hira: 'ちょ', kata: 'チョ', roma: 'cho' },
-      { hira: 'にゃ', kata: 'ニャ', roma: 'nya' }, { hira: 'にゅ', kata: 'ニュ', roma: 'nyu' }, { hira: 'にょ', kata: 'ニョ', roma: 'nyo' },
-      { hira: 'ひゃ', kata: 'ヒャ', roma: 'hya' }, { hira: 'ひゅ', kata: 'ヒュ', roma: 'hyu' }, { hira: 'ひょ', kata: 'ヒョ', roma: 'hyo' }
+    // --- 2. N5 高頻核心單字庫 ---
+    const n5VocabList = [
+      // 名詞 (noun)
+      { kana: 'がくせい', kanji: '学生', meaning: '學生', cat: 'noun', catName: '名詞', ex: '私は大学生です。(我是大學生。)' },
+      { kana: 'せんせい', kanji: '先生', meaning: '老師', cat: 'noun', catName: '名詞', ex: '田中先生は優しいです。(田中老師很溫柔。)' },
+      { kana: 'かいしゃいん', kanji: '会社員', meaning: '上班族 / 公司職員', cat: 'noun', catName: '名詞', ex: '父は会社員です。(父親是上班族。)' },
+      { kana: 'びょういん', kanji: '病院', meaning: '醫院', cat: 'noun', catName: '名詞', ex: '明日病院へ行きます。(明天要去醫院。)' },
+      { kana: 'としょかん', kanji: '図書館', meaning: '圖書館', cat: 'noun', catName: '名詞', ex: '図書館で本を読みます。(在圖書館看書。)' },
+      { kana: 'でんしゃ', kanji: '電車', meaning: '電車 / 火車', cat: 'noun', catName: '名詞', ex: '毎日電車で学校へ行きます。(每天搭電車去學校。)' },
+      { kana: 'じてんしゃ', kanji: '自転車', meaning: '腳踏車', cat: 'noun', catName: '名詞', ex: '新しい自転車を買いました。(買了新腳踏車。)' },
+      { kana: 'たべもの', kanji: '食べ物', meaning: '食物', cat: 'noun', catName: '名詞', ex: '日本の食べ物は美味しいです。(日本食物很好吃。)' },
+      { kana: 'のみもの', kanji: '飲み物', meaning: '飲料', cat: 'noun', catName: '名詞', ex: '冷たい飲み物をください。(請給我冰的飲料。)' },
+      { kana: 'てんき', kanji: '天気', meaning: '天氣', cat: 'noun', catName: '名詞', ex: '今日はいい天気ですね。(今天天氣真好呢。)' },
+      { kana: 'かぞく', kanji: '家族', meaning: '家人 / 家族', cat: 'noun', catName: '名詞', ex: '家族と旅行に行きます。(和家人去旅行。)' },
+      { kana: 'ともだち', kanji: '友達', meaning: '朋友', cat: 'noun', catName: '名詞', ex: '友達と映画を見ます。(和朋友看電影。)' },
+      { kana: 'おかね', kanji: 'お金', meaning: '金錢', cat: 'noun', catName: '名詞', ex: 'お金が足りません。(錢不夠。)' },
+      { kana: 'じかん', kanji: '時間', meaning: '時間', cat: 'noun', catName: '名詞', ex: '今は時間がありません。(現在沒有時間。)' },
+      { kana: 'しゃしん', kanji: '写真', meaning: '照片', cat: 'noun', catName: '名詞', ex: 'ここで写真を撮ってもいいですか。(可以在這裡拍照嗎？)' },
+
+      // 動詞 (verb)
+      { kana: 'たべます', kanji: '食べます', meaning: '吃', cat: 'verb', catName: '動詞', ex: '朝ごはんを食べます。(吃早餐。)' },
+      { kana: 'のみます', kanji: '飲みます', meaning: '喝', cat: 'verb', catName: '動詞', ex: '毎朝コーヒーを飲みます。(每天早上喝咖啡。)' },
+      { kana: 'いきます', kanji: '行きます', meaning: '去', cat: 'verb', catName: '動詞', ex: '来月日本へ行きます。(下個月要去日本。)' },
+      { kana: 'きます', kanji: '来ます', meaning: '來', cat: 'verb', catName: '動詞', ex: '友達が家に来ます。(朋友要來家裡。)' },
+      { kana: 'かえります', kanji: '帰ります', meaning: '回家 / 返回', cat: 'verb', catName: '動詞', ex: '６時に家へ帰ります。(6點回家。)' },
+      { kana: 'みます', kanji: '見ます', meaning: '看 / 觀看', cat: 'verb', catName: '動詞', ex: 'テレビを見ます。(看電視。)' },
+      { kana: 'ききます', kanji: '聞きます', meaning: '聽 / 詢問', cat: 'verb', catName: '動詞', ex: '音楽を聞きます。(聽音樂。)' },
+      { kana: 'よみます', kanji: '読みます', meaning: '讀 / 閱讀', cat: 'verb', catName: '動詞', ex: '新聞を読みます。(看報紙。)' },
+      { kana: 'かきます', kanji: '書きます', meaning: '寫 / 畫', cat: 'verb', catName: '動詞', ex: '手紙を書きます。(寫信。)' },
+      { kana: 'かいます', kanji: '買います', meaning: '買', cat: 'verb', catName: '動詞', ex: 'スーパーで野菜を買います。(在超市買蔬菜。)' },
+      { kana: 'べんきょうします', kanji: '勉強します', meaning: '讀書 / 學習', cat: 'verb', catName: '動詞', ex: '毎日日本語を勉強します。(每天學習日文。)' },
+      { kana: 'おきます', kanji: '起きます', meaning: '起床', cat: 'verb', catName: '動詞', ex: '毎朝７時に起きます。(每天早上7點起床。)' },
+      { kana: 'ねます', kanji: '寝ます', meaning: '睡覺', cat: 'verb', catName: '動詞', ex: '１１時に寝ます。(11點睡覺。)' },
+
+      // 形容詞 (adj)
+      { kana: 'おおきい', kanji: '大きい', meaning: '大的', cat: 'adj', catName: 'い形容詞', ex: 'この犬は大きいです。(這隻狗很大。)' },
+      { kana: 'ちいさい', kanji: '小さい', meaning: '小的', cat: 'adj', catName: 'い形容詞', ex: '小さい鞄が欲しいです。(想要小包包。)' },
+      { kana: 'あたらしい', kanji: '新しい', meaning: '新的', cat: 'adj', catName: 'い形容詞', ex: '新しいスマホを買いました。(買了新手機。)' },
+      { kana: 'ふるい', kanji: '古い', meaning: '舊的 / 古老的', cat: 'adj', catName: 'い形容詞', ex: 'これは古いお寺です。(這是古老的寺廟。)' },
+      { kana: 'おいしい', kanji: '美味しい', meaning: '好吃的', cat: 'adj', catName: 'い形容詞', ex: 'このラーメンは美味しいです。(這碗拉麵很好吃。)' },
+      { kana: 'たかい', kanji: '高い', meaning: '高的 / 貴的', cat: 'adj', catName: 'い形容詞', ex: 'この時計はとても高いです。(這個手錶非常貴。)' },
+      { kana: 'やすい', kanji: '安い', meaning: '便宜的', cat: 'adj', catName: 'い形容詞', ex: 'この店は野菜が安いです。(這家店的蔬菜很便宜。)' },
+      { kana: 'いそがしい', kanji: '忙しい', meaning: '忙碌的', cat: 'adj', catName: 'い形容詞', ex: '今週はとても忙しいです。(這週非常忙碌。)' },
+      { kana: 'たのしい', kanji: '楽しい', meaning: '愉快的 / 開心的', cat: 'adj', catName: 'い形容詞', ex: '旅行はとても楽しかったです。(旅行非常愉快。)' },
+      { kana: 'きれい', kanji: '綺麗', meaning: '漂亮的 / 乾淨的', cat: 'adj', catName: 'な形容詞', ex: '部屋を綺麗にします。(把房間打掃乾淨。)' },
+      { kana: 'しずか', kanji: '静か', meaning: '安靜的', cat: 'adj', catName: 'な形容詞', ex: 'ここはとても静かな町です。(這裡是很安靜的城鎮。)' },
+      { kana: 'げんき', kanji: '元気', meaning: '有精神的 / 健康的', cat: 'adj', catName: 'な形容詞', ex: 'お元気ですか。(你好嗎？)' },
+      { kana: 'ゆうめい', kanji: '有名', meaning: '有名的', cat: 'adj', catName: 'な形容詞', ex: 'ここは有名な観光地です。(這裡是有名的觀光勝地。)' },
+
+      // 時間與方位 (time)
+      { kana: 'きょう', kanji: '今日', meaning: '今天', cat: 'time', catName: '時間/方位', ex: '今日は月曜日です。(今天是星期一。)' },
+      { kana: 'あした', kanji: '明日', meaning: '明天', cat: 'time', catName: '時間/方位', ex: '明日は雨が降ります。(明天會下雨。)' },
+      { kana: 'きのう', kanji: '昨日', meaning: '昨天', cat: 'time', catName: '時間/方位', ex: '昨日は休みでした。(昨天是休息日。)' },
+      { kana: 'まいにち', kanji: '毎日', meaning: '每天', cat: 'time', catName: '時間/方位', ex: '毎日運動します。(每天運動。)' },
+      { kana: 'らいしゅう', kanji: '来週', meaning: '下週', cat: 'time', catName: '時間/方位', ex: '来週テストがあります。(下週有考試。)' },
+      { kana: 'みぎ', kanji: '右', meaning: '右邊', cat: 'time', catName: '時間/方位', ex: '角を右へ曲がってください。(請在轉角向右轉。)' },
+      { kana: 'ひだり', kanji: '左', meaning: '左邊', cat: 'time', catName: '時間/方位', ex: '駅の左に銀行があります。(車站左邊有銀行。)' },
+      { kana: 'まえ', kanji: '前', meaning: '前面 / 之前', cat: 'time', catName: '時間/方位', ex: '駅の前で会いましょう。(在車站前面見面吧。)' },
+      { kana: 'うしろ', kanji: '後ろ', meaning: '後面', cat: 'time', catName: '時間/方位', ex: '私の後ろに猫がいます。(我的後面有隻貓。)' }
     ];
 
-    // 應用程式狀態 (State)
-    let currentScript = 'hira'; // 'hira' | 'kata'
-    let currentKanaType = 'seion'; // 'seion' | 'dakuon' | 'youon'
-    let currentCardIndex = 0;
-    let quizScore = 0;
-    let currentQuizItem = null;
+    // --- 3. N5 必考文法資料庫 (含多例句) ---
+    const n5GrammarList = [
+      {
+        cat: 'particle',
+        badge: '核心助詞',
+        title: 'は (wa) — 提示主題',
+        desc: '置於名詞後方，用來標示整句話討論的主題。寫作「は」，但作為助詞時發音為「wa」。',
+        examples: [
+          { jp: '私は台湾人です。', zh: '我是台灣人。' },
+          { jp: '今日の天気はいいです。', zh: '今天的天氣很好。' }
+        ]
+      },
+      {
+        cat: 'particle',
+        badge: '核心助詞',
+        title: 'を (o) — 動作的目的語',
+        desc: '置於名詞後方，標示他動詞所作用的直接對象（受詞）。',
+        examples: [
+          { jp: '私は毎日水を飲みます。', zh: '我每天喝水。' },
+          { jp: '駅で新聞を買いました。', zh: '在車站買了報紙。' }
+        ]
+      },
+      {
+        cat: 'particle',
+        badge: '核心助詞',
+        title: 'に (ni) — 時間點 / 目的地 / 存在場所',
+        desc: 'N5 最常考的多功能助詞：用於具體時間點（幾點、星期幾）、移動的目的地，或人/物存在的地點。',
+        examples: [
+          { jp: '毎朝６時に起きます。', zh: '每天早上 6 點起床。' },
+          { jp: '来月東京に行きます。', zh: '下個月要去東京。' }
+        ]
+      },
+      {
+        cat: 'particle',
+        badge: '核心助詞',
+        title: 'で (de) — 動作場所 / 交通工具 / 手段',
+        desc: '標示「在某地進行某動作」，或是搭乘的交通工具、使用的語言與工具。',
+        examples: [
+          { jp: '図書館で日本語を勉強します。', zh: '在圖書館讀日文。' },
+          { jp: '箸でご飯を食べます。', zh: '用筷子吃飯。' }
+        ]
+      },
+      {
+        cat: 'particle',
+        badge: '核心助詞',
+        title: 'へ (e) — 移動的方向',
+        desc: '接在場所名詞後方，強調移動的方向。寫作「へ」，但作為助詞時發音為「e」。',
+        examples: [
+          { jp: '夏休みに日本へ行きます。', zh: '暑假要去日本。' },
+          { jp: '何時に家へ帰りますか。', zh: '幾點回家呢？' }
+        ]
+      },
+      {
+        cat: 'particle',
+        badge: '核心助詞',
+        title: 'と (to) — 並列「和」 / 共同動作者',
+        desc: '連接兩個名詞表示「A和B」，或表示「和某人一起做某事」。',
+        examples: [
+          { jp: '机の上に本とペンがあります。', zh: '桌子上有書和筆。' },
+          { jp: '昨日友達と映画を見ました。', zh: '昨天和朋友看了電影。' }
+        ]
+      },
+      {
+        cat: 'sentence',
+        badge: '基礎句型',
+        title: '～は～です / ～ではありません',
+        desc: '最基礎的名詞判斷句。「です」為肯定結尾；「ではありません（口語：じゃありません）」為否定結尾。',
+        examples: [
+          { jp: 'あれは私の傘です。', zh: '那是我的雨傘。' },
+          { jp: '田中さんは医者ではありません。', zh: '田中先生不是醫生。' }
+        ]
+      },
+      {
+        cat: 'sentence',
+        badge: '基礎句型',
+        title: '～があります / ～がいます (存在句)',
+        desc: '表示「有某物/某人」。無生命物品、植物用「あります」；人、動物等有生命體用「います」。',
+        examples: [
+          { jp: '部屋にテレビがあります。', zh: '房間裡有電視。' },
+          { jp: '公園に子供がいます。', zh: '公園裡有小孩。' }
+        ]
+      },
+      {
+        cat: 'sentence',
+        badge: '時態變化',
+        title: '動詞 ます 形四種基本時態',
+        desc: '現在/未來肯定（～ます）、否定（～ません）、過去肯定（～ました）、過去否定（～ませんでした）。',
+        examples: [
+          { jp: '昨日テレビを見ませんでした。', zh: '昨天沒有看電視。' },
+          { jp: '明日学校へ行きますか。', zh: '明天要去學校嗎？' }
+        ]
+      },
+      {
+        cat: 'sentence',
+        badge: '形容詞變化',
+        title: 'い形容詞過去式與否定式',
+        desc: 'い形容詞變化時需去掉字尾「い」：否定改為「～くないです」，過去式改為「～かったです」。',
+        examples: [
+          { jp: 'この本は面白くないです。', zh: '這本書不好看（無趣）。' },
+          { jp: '昨日のテストは難しかったです。', zh: '昨天的考試很難。' }
+        ]
+      },
+      {
+        cat: 'expression',
+        badge: '願望句型',
+        title: '動詞ます形（去ます）＋ たいです',
+        desc: '表示第一人稱（我）想要做某個動作。「たい」的變化規則與「い形容詞」完全相同。',
+        examples: [
+          { jp: '日本へ旅行に行きたいです。', zh: '想去日本旅行。' },
+          { jp: '喉が渇きました。水を飲みたいです。', zh: '口渴了，想喝水。' }
+        ]
+      },
+      {
+        cat: 'expression',
+        badge: '請求與許可',
+        title: '動詞 て 形 ＋ ください',
+        desc: '用來禮貌地請求或指示對方做某件事，意思是「請做～」。',
+        examples: [
+          { jp: 'ここに名前を書いてください。', zh: '請在這裡寫上名字。' },
+          { jp: 'ちょっと待ってください。', zh: '請稍等一下。' }
+        ]
+      }
+    ];
 
-    // 頁籤切換
+    // --- 狀態變數 ---
+    let currentScript = 'hira';
+    let currentKanaType = 'seion';
+    let currentVocabCat = 'all';
+    let currentGrammarCat = 'all';
+    
+    // 閃卡狀態
+    let currentDeck = 'kana'; // 'kana' | 'vocab'
+    let currentCardIndex = 0;
+    let isFlipped = false;
+
+    // 測驗狀態
+    let quizMode = 'kana'; // 'kana' | 'vocab-jp2zh' | 'vocab-zh2jp'
+    let totalScore = 0;
+    let quizStreak = 0;
+    let currentQuizData = null;
+    let quizAnswered = false;
+
+    // --- 頁籤切換 ---
     function switchTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -530,130 +558,88 @@
       activeBtn.classList.add('active', 'border-b-2', 'border-indigo-600', 'text-indigo-600');
       activeBtn.classList.remove('text-slate-500');
 
-      if (tabName === 'quiz' && !currentQuizItem) {
+      if (tabName === 'quiz' && !currentQuizData) {
         generateQuizQuestion();
       }
     }
 
-    // 假名種類切換 (平假名/片假名)
+    // --- 1. 五十音渲染 ---
     function setScript(type) {
       currentScript = type;
       const hiraBtn = document.getElementById('script-hira');
       const kataBtn = document.getElementById('script-kata');
       if (type === 'hira') {
-        hiraBtn.className = "flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-semibold transition bg-white text-indigo-600 shadow-sm";
-        kataBtn.className = "flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-semibold transition text-slate-600 hover:text-indigo-600";
+        hiraBtn.className = "flex-1 sm:flex-none px-6 py-1.5 rounded-md text-sm font-semibold transition bg-white text-indigo-600 shadow-sm";
+        kataBtn.className = "flex-1 sm:flex-none px-6 py-1.5 rounded-md text-sm font-semibold transition text-slate-600 hover:text-indigo-600";
       } else {
-        kataBtn.className = "flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-semibold transition bg-white text-indigo-600 shadow-sm";
-        hiraBtn.className = "flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-semibold transition text-slate-600 hover:text-indigo-600";
+        kataBtn.className = "flex-1 sm:flex-none px-6 py-1.5 rounded-md text-sm font-semibold transition bg-white text-indigo-600 shadow-sm";
+        hiraBtn.className = "flex-1 sm:flex-none px-6 py-1.5 rounded-md text-sm font-semibold transition text-slate-600 hover:text-indigo-600";
       }
       renderKanaGrid();
-      updateFlashcard();
+      if (currentDeck === 'kana') updateFlashcard();
     }
 
-    // 音韻種類切換 (清音/濁音/拗音)
     function setKanaType(type) {
       currentKanaType = type;
-      ['seion', 'dakuon', 'youon'].forEach(t => {
+      ['seion', 'dakuon'].forEach(t => {
         const btn = document.getElementById(`type-${t}`);
         if (t === type) {
-          btn.className = "px-4 py-2 text-xs sm:text-sm rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-700 font-semibold shadow-sm";
+          btn.className = "px-3 py-1.5 text-xs sm:text-sm rounded-lg border bg-indigo-50 border-indigo-200 text-indigo-700 font-medium";
         } else {
-          btn.className = "px-4 py-2 text-xs sm:text-sm rounded-lg border border-slate-200 text-slate-600 font-medium hover:bg-slate-50";
+          btn.className = "px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-slate-200 text-slate-600 font-medium hover:bg-slate-50";
         }
       });
       renderKanaGrid();
     }
 
-    // 渲染五十音圖表
     function renderKanaGrid() {
       const container = document.getElementById('kana-grid-container');
-      const badge = document.getElementById('kana-count-badge');
       container.innerHTML = '';
-
-      let dataSet = seionData;
-      let gridCols = "grid-cols-5";
-
-      if (currentKanaType === 'dakuon') {
-        dataSet = dakuonData;
-        badge.innerText = "25 音";
-      } else if (currentKanaType === 'youon') {
-        dataSet = youonData;
-        gridCols = "grid-cols-3 sm:grid-cols-3 md:grid-cols-5";
-        badge.innerText = "15 音";
-      } else {
-        badge.innerText = "46 音";
-      }
-
       const grid = document.createElement('div');
-      grid.className = `grid ${gridCols} gap-2 sm:gap-3`;
+      grid.className = "grid grid-cols-5 gap-2 sm:gap-3";
 
-      dataSet.forEach(item => {
+      const list = currentKanaType === 'seion' ? seionData : dakuonData;
+
+      list.forEach(item => {
         if (!item.hira) {
           const emptyCell = document.createElement('div');
-          emptyCell.className = "bg-slate-50/40 border border-dashed border-slate-200 rounded-xl min-h-[70px]";
+          emptyCell.className = "bg-slate-50/40 rounded-xl min-h-[70px]";
           grid.appendChild(emptyCell);
           return;
         }
 
         const char = currentScript === 'hira' ? item.hira : item.kata;
         const card = document.createElement('button');
-        card.onclick = () => speakKana(char);
-        card.className = "group relative bg-slate-50 hover:bg-indigo-50/80 border border-slate-200/90 hover:border-indigo-300 rounded-xl p-3 flex flex-col items-center justify-center transition shadow-sm hover:shadow";
-        
+        card.onclick = () => speakJP(char);
+        card.className = "group relative bg-slate-50 hover:bg-indigo-50/80 border border-slate-200 hover:border-indigo-300 rounded-xl p-3 flex flex-col items-center justify-center transition shadow-sm active:scale-95";
         card.innerHTML = `
-          <span class="text-[11px] text-slate-400 font-medium uppercase tracking-wider mb-0.5 group-hover:text-indigo-500">${item.roma}</span>
-          <span class="text-2xl sm:text-3xl font-bold font-serif text-slate-800 group-hover:text-indigo-600 group-hover:scale-110 transition-transform">${char}</span>
+          <span class="text-xs text-slate-400 font-medium tracking-tight mb-1 group-hover:text-indigo-500">${item.roma}</span>
+          <span class="text-2xl sm:text-3xl font-bold text-slate-800 group-hover:text-indigo-600">${char}</span>
           ${item.origin ? `<span class="text-[10px] text-slate-400 mt-1">源: ${item.origin}</span>` : ''}
         `;
         grid.appendChild(card);
       });
-
       container.appendChild(grid);
     }
 
-    // 渲染字源記憶卡片
-    function renderOriginCards(filterText = '') {
+    // --- 2. 漢字字源渲染 ---
+    function renderOriginCards() {
       const container = document.getElementById('origin-cards-container');
       container.innerHTML = '';
-
-      const activeItems = seionData.filter(i => {
-        if (!i.hira) return false;
-        if (!filterText) return true;
-        const q = filterText.toLowerCase();
-        return (
-          i.hira.includes(q) ||
-          i.kata.includes(q) ||
-          i.roma.toLowerCase().includes(q) ||
-          i.origin.includes(q)
-        );
-      });
-
-      if (activeItems.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400 text-sm">找不到符合搜尋條件的假名。</div>`;
-        return;
-      }
-
-      activeItems.forEach(item => {
-        const char = currentScript === 'hira' ? item.hira : item.kata;
+      seionData.filter(i => i.hira !== '').forEach(item => {
         const card = document.createElement('div');
-        card.className = "bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between hover:shadow-md transition";
+        card.className = "bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex items-center justify-between hover:border-indigo-200 transition";
         card.innerHTML = `
           <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-2xl font-bold font-serif">
-              ${char}
+            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-2xl font-bold">
+              ${item.hira}
             </div>
             <div>
-              <div class="font-bold text-slate-800">
-                ${item.hira} (${item.kata}) &bull; <span class="text-indigo-600 font-mono">${item.roma}</span>
-              </div>
-              <div class="text-xs text-slate-500 mt-0.5">
-                字源演變：<span class="font-bold text-slate-700 font-serif">${item.origin}</span> 字草書
-              </div>
-              ${item.word ? `<div class="text-[11px] text-slate-400 mt-1">例：${item.word} (${item.meaning})</div>` : ''}
+              <div class="font-bold text-slate-800">${item.hira} / ${item.kata} <span class="text-indigo-600 text-sm ml-1">[${item.roma}]</span></div>
+              <div class="text-xs text-slate-500 mt-0.5">源自漢字：<span class="font-bold text-slate-700">${item.origin}</span> &bull; 例詞：${item.word}</div>
             </div>
           </div>
-          <button onclick="speakKana('${char}')" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-100 text-slate-500 hover:text-indigo-600 flex items-center justify-center transition">
+          <button onclick="speakJP('${item.hira}')" class="text-slate-400 hover:text-indigo-600 p-2 rounded-lg hover:bg-indigo-50">
             <i class="fas fa-volume-up"></i>
           </button>
         `;
@@ -661,14 +647,78 @@
       });
     }
 
-    function filterOriginCards() {
-      const query = document.getElementById('origin-search').value;
-      renderOriginCards(query);
+    // --- 3. N5 單字庫渲染 ---
+    function filterVocab(cat) {
+      currentVocabCat = cat;
+      document.querySelectorAll('.vcat-btn').forEach(btn => {
+        btn.className = "vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium";
+      });
+      document.getElementById(`vcat-${cat}`).className = "vcat-btn px-3 py-1.5 text-xs sm:text-sm rounded-lg bg-indigo-600 text-white font-medium";
+      renderVocabList();
     }
 
-    // 閃卡系統 (Flashcards)
-    let isFlipped = false;
-    const cardData = seionData.filter(i => i.hira !== '');
+    function renderVocabList() {
+      const container = document.getElementById('vocab-list-container');
+      const keyword = document.getElementById('vocab-search').value.trim().toLowerCase();
+      container.innerHTML = '';
+
+      const filtered = n5VocabList.filter(item => {
+        const matchCat = currentVocabCat === 'all' || item.cat === currentVocabCat;
+        const matchKey = !keyword || 
+          item.kana.includes(keyword) || 
+          item.kanji.includes(keyword) || 
+          item.meaning.toLowerCase().includes(keyword);
+        return matchCat && matchKey;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">找不到符合條件的單字，請嘗試其他關鍵字。</div>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:border-indigo-300 transition flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-indigo-50 text-indigo-600">${item.catName}</span>
+              <button onclick="speakJP('${item.kana}')" class="text-indigo-600 hover:text-indigo-800 p-1.5 rounded-lg hover:bg-indigo-50" title="發音">
+                <i class="fas fa-volume-up"></i>
+              </button>
+            </div>
+            <div class="text-xs text-slate-500">${item.kana}</div>
+            <div class="text-xl font-bold text-slate-800 mb-1">${item.kanji}</div>
+            <div class="text-sm font-medium text-emerald-700 mb-3">${item.meaning}</div>
+          </div>
+          <div class="pt-2.5 border-t border-slate-100 text-xs text-slate-500 flex items-center justify-between">
+            <span>${item.ex}</span>
+            <button onclick="speakJP('${item.ex.split('(')[0]}')" class="text-slate-400 hover:text-indigo-600 ml-2 flex-shrink-0" title="朗讀例句">
+              <i class="fas fa-play-circle text-sm"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- 4. 閃卡系統 ---
+    const validKanaCards = seionData.filter(i => i.hira !== '');
+
+    function switchDeck(deck) {
+      currentDeck = deck;
+      currentCardIndex = 0;
+      const kanaBtn = document.getElementById('deck-kana');
+      const vocabBtn = document.getElementById('deck-vocab');
+      if (deck === 'kana') {
+        kanaBtn.className = "flex-1 py-1.5 rounded-lg text-sm font-semibold bg-white text-indigo-600 shadow-sm transition";
+        vocabBtn.className = "flex-1 py-1.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-indigo-600 transition";
+      } else {
+        vocabBtn.className = "flex-1 py-1.5 rounded-lg text-sm font-semibold bg-white text-indigo-600 shadow-sm transition";
+        kanaBtn.className = "flex-1 py-1.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-indigo-600 transition";
+      }
+      updateFlashcard();
+    }
 
     function flipCard() {
       isFlipped = !isFlipped;
@@ -681,114 +731,263 @@
     }
 
     function updateFlashcard() {
-      const item = cardData[currentCardIndex];
-      const char = currentScript === 'hira' ? item.hira : item.kata;
-      
-      document.getElementById('card-main-text').innerText = char;
-      document.getElementById('card-roma-back').innerText = item.roma;
-      document.getElementById('card-answer-title').innerText = `${char} (${item.roma})`;
-      document.getElementById('card-answer-desc').innerText = `漢字演變源自「${item.origin}」字`;
-      document.getElementById('card-example').innerText = item.word ? `實用單字：${item.word} (${item.meaning})` : '基礎假名音素';
-      document.getElementById('card-counter').innerText = `${currentCardIndex + 1} / ${cardData.length}`;
+      if (isFlipped) flipCard();
 
-      if (isFlipped) {
-        flipCard();
+      if (currentDeck === 'kana') {
+        const item = validKanaCards[currentCardIndex];
+        const char = currentScript === 'hira' ? item.hira : item.kata;
+        document.getElementById('card-tag').innerText = '50音清音練習';
+        document.getElementById('card-main-text').innerText = char;
+        document.getElementById('card-main-text').className = "text-7xl font-bold text-slate-800 tracking-wider";
+        document.getElementById('card-roma-back').innerText = item.roma;
+        document.getElementById('card-answer-title').innerText = `${char} (${item.roma})`;
+        document.getElementById('card-answer-desc').innerText = `字源演變自漢字「${item.origin}」`;
+        document.getElementById('card-example').innerText = `例詞：${item.word} — ${item.meaning}`;
+        document.getElementById('card-counter').innerText = `${currentCardIndex + 1} / ${validKanaCards.length}`;
+      } else {
+        const item = n5VocabList[currentCardIndex];
+        document.getElementById('card-tag').innerText = `N5 單字 (${item.catName})`;
+        document.getElementById('card-main-text').innerText = item.kanji;
+        document.getElementById('card-main-text').className = "text-4xl sm:text-5xl font-bold text-slate-800 tracking-wide";
+        document.getElementById('card-roma-back').innerText = item.kana;
+        document.getElementById('card-answer-title').innerText = item.meaning;
+        document.getElementById('card-answer-desc').innerText = `讀音：${item.kana}`;
+        document.getElementById('card-example').innerText = `例句：${item.ex}`;
+        document.getElementById('card-counter').innerText = `${currentCardIndex + 1} / ${n5VocabList.length}`;
       }
     }
 
     function playCardAudio() {
-      const item = cardData[currentCardIndex];
-      const char = currentScript === 'hira' ? item.hira : item.kata;
-      speakKana(char);
+      if (currentDeck === 'kana') {
+        const item = validKanaCards[currentCardIndex];
+        speakJP(currentScript === 'hira' ? item.hira : item.kata);
+      } else {
+        speakJP(n5VocabList[currentCardIndex].kana);
+      }
     }
 
     function nextCard() {
-      currentCardIndex = (currentCardIndex + 1) % cardData.length;
+      const len = currentDeck === 'kana' ? validKanaCards.length : n5VocabList.length;
+      currentCardIndex = (currentCardIndex + 1) % len;
       updateFlashcard();
     }
 
     function prevCard() {
-      currentCardIndex = (currentCardIndex - 1 + cardData.length) % cardData.length;
+      const len = currentDeck === 'kana' ? validKanaCards.length : n5VocabList.length;
+      currentCardIndex = (currentCardIndex - 1 + len) % len;
       updateFlashcard();
     }
 
-    function randomCard() {
-      currentCardIndex = Math.floor(Math.random() * cardData.length);
-      updateFlashcard();
+    // --- 5. 多模式隨堂測驗系統 ---
+    function setQuizMode(mode) {
+      quizMode = mode;
+      ['kana', 'vocab-jp2zh', 'vocab-zh2jp'].forEach(m => {
+        const btn = document.getElementById(`qmode-${m}`);
+        if (m === mode) {
+          btn.className = "flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-white text-indigo-600 shadow-sm transition";
+        } else {
+          btn.className = "flex-1 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:text-indigo-600 transition";
+        }
+      });
+      generateQuizQuestion();
     }
 
-    // 測驗系統 (Quiz System)
     function generateQuizQuestion() {
-      const validItems = seionData.filter(i => i.hira !== '');
-      const item = validItems[Math.floor(Math.random() * validItems.length)];
-      currentQuizItem = item;
-
-      const char = currentScript === 'hira' ? item.hira : item.kata;
-      document.getElementById('quiz-question').innerText = char;
-
-      // 產生 4 個選項 (包含 1 個正確，3 個干擾項)
-      const options = [item.roma];
-      while (options.length < 4) {
-        const rand = validItems[Math.floor(Math.random() * validItems.length)].roma;
-        if (!options.includes(rand)) options.push(rand);
-      }
-
-      // 隨機打亂選項順序
-      options.sort(() => Math.random() - 0.5);
+      quizAnswered = false;
+      document.getElementById('quiz-feedback').classList.add('hidden');
+      document.getElementById('quiz-next-btn').classList.add('hidden');
 
       const optionsContainer = document.getElementById('quiz-options');
       optionsContainer.innerHTML = '';
-      
+
+      if (quizMode === 'kana') {
+        document.getElementById('quiz-mode-badge').innerText = '五十音讀音測驗';
+        document.getElementById('quiz-audio-btn').classList.remove('hidden');
+        const item = validKanaCards[Math.floor(Math.random() * validKanaCards.length)];
+        const char = currentScript === 'hira' ? item.hira : item.kata;
+        
+        currentQuizData = {
+          promptText: char,
+          audioText: char,
+          correctAnswer: item.roma,
+          explain: `${char} 的羅馬拼音是「${item.roma}」（字源：${item.origin}）`
+        };
+
+        document.getElementById('quiz-question').innerText = char;
+        document.getElementById('quiz-question').className = "text-5xl font-bold text-slate-800";
+        document.getElementById('quiz-sub-hint').innerText = "請選出正確的羅馬拼音";
+
+        const opts = [item.roma];
+        while (opts.length < 4) {
+          const r = validKanaCards[Math.floor(Math.random() * validKanaCards.length)].roma;
+          if (!opts.includes(r)) opts.push(r);
+        }
+        renderQuizOptions(opts.sort(() => Math.random() - 0.5));
+
+      } else if (quizMode === 'vocab-jp2zh') {
+        document.getElementById('quiz-mode-badge').innerText = 'N5 單字測驗 (日文 → 中文)';
+        document.getElementById('quiz-audio-btn').classList.remove('hidden');
+        const item = n5VocabList[Math.floor(Math.random() * n5VocabList.length)];
+        const displayTitle = item.kanji === item.kana ? item.kana : `${item.kanji} (${item.kana})`;
+
+        currentQuizData = {
+          promptText: displayTitle,
+          audioText: item.kana,
+          correctAnswer: item.meaning,
+          explain: `${displayTitle} 的意思是「${item.meaning}」。例句：${item.ex}`
+        };
+
+        document.getElementById('quiz-question').innerText = displayTitle;
+        document.getElementById('quiz-question').className = "text-3xl sm:text-4xl font-bold text-slate-800";
+        document.getElementById('quiz-sub-hint').innerText = "請選出正確的中文意思";
+
+        const opts = [item.meaning];
+        while (opts.length < 4) {
+          const r = n5VocabList[Math.floor(Math.random() * n5VocabList.length)].meaning;
+          if (!opts.includes(r)) opts.push(r);
+        }
+        renderQuizOptions(opts.sort(() => Math.random() - 0.5));
+
+      } else if (quizMode === 'vocab-zh2jp') {
+        document.getElementById('quiz-mode-badge').innerText = 'N5 單字測驗 (中文 → 日文)';
+        document.getElementById('quiz-audio-btn').classList.add('hidden');
+        const item = n5VocabList[Math.floor(Math.random() * n5VocabList.length)];
+        const answerLabel = item.kanji === item.kana ? item.kana : `${item.kanji} (${item.kana})`;
+
+        currentQuizData = {
+          promptText: item.meaning,
+          audioText: item.kana,
+          correctAnswer: answerLabel,
+          explain: `「${item.meaning}」的日文是 ${answerLabel}。例句：${item.ex}`
+        };
+
+        document.getElementById('quiz-question').innerText = item.meaning;
+        document.getElementById('quiz-question').className = "text-3xl sm:text-4xl font-bold text-slate-800";
+        document.getElementById('quiz-sub-hint').innerText = "請選出對應的日文單字";
+
+        const opts = [answerLabel];
+        while (opts.length < 4) {
+          const randItem = n5VocabList[Math.floor(Math.random() * n5VocabList.length)];
+          const label = randItem.kanji === randItem.kana ? randItem.kana : `${randItem.kanji} (${randItem.kana})`;
+          if (!opts.includes(label)) opts.push(label);
+        }
+        renderQuizOptions(opts.sort(() => Math.random() - 0.5));
+      }
+    }
+
+    function renderQuizOptions(options) {
+      const optionsContainer = document.getElementById('quiz-options');
       options.forEach(opt => {
         const btn = document.createElement('button');
-        btn.className = "py-3.5 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 font-bold text-slate-700 hover:text-indigo-600 transition text-center text-sm shadow-sm";
+        btn.className = "quiz-opt-btn py-3.5 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 font-semibold text-slate-700 hover:text-indigo-600 transition text-center text-sm sm:text-base";
         btn.innerText = opt;
         btn.onclick = () => checkQuizAnswer(opt, btn);
         optionsContainer.appendChild(btn);
       });
+    }
 
-      document.getElementById('quiz-feedback').classList.add('hidden');
-      document.getElementById('quiz-next-btn').classList.add('hidden');
+    function playQuizAudio() {
+      if (currentQuizData && currentQuizData.audioText) {
+        speakJP(currentQuizData.audioText);
+      }
     }
 
     function checkQuizAnswer(selected, btnElement) {
-      const isCorrect = selected === currentQuizItem.roma;
+      if (quizAnswered) return;
+      quizAnswered = true;
+
+      const isCorrect = selected === currentQuizData.correctAnswer;
       const feedback = document.getElementById('quiz-feedback');
       feedback.classList.remove('hidden');
 
-      // 停用所有按鈕防止重複點擊
-      const buttons = document.querySelectorAll('#quiz-options button');
-      buttons.forEach(b => b.disabled = true);
+      // 自動朗讀正確答案的日文發音加深記憶
+      speakJP(currentQuizData.audioText);
+
+      // 標示按鈕顏色
+      document.querySelectorAll('.quiz-opt-btn').forEach(btn => {
+        btn.disabled = true;
+        if (btn.innerText === currentQuizData.correctAnswer) {
+          btn.className = "py-3.5 px-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-bold text-emerald-700 text-center text-sm sm:text-base";
+        } else if (btn === btnElement && !isCorrect) {
+          btn.className = "py-3.5 px-4 rounded-xl border-2 border-rose-500 bg-rose-50 font-bold text-rose-700 text-center text-sm sm:text-base";
+        } else {
+          btn.className = "py-3.5 px-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 text-center text-sm sm:text-base opacity-60";
+        }
+      });
 
       if (isCorrect) {
-        quizScore += 10;
-        document.getElementById('quiz-score').innerText = quizScore;
-        btnElement.className = "py-3.5 px-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold text-center text-sm shadow-sm";
-        feedback.className = "text-center py-3 px-4 rounded-xl mb-2 text-sm font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200";
-        feedback.innerHTML = `<i class="fas fa-check-circle text-emerald-600 mr-1.5"></i> 答對了！ <strong>${currentQuizItem.hira}</strong> 的讀音是 <strong>${currentQuizItem.roma}</strong>`;
-        speakKana(currentQuizItem.hira);
+        totalScore += 10;
+        quizStreak += 1;
+        document.getElementById('total-score-header').innerText = totalScore;
+        document.getElementById('quiz-streak').innerText = `${quizStreak} 題`;
+        feedback.className = "text-left py-3 px-4 rounded-xl mb-4 text-sm bg-emerald-50 text-emerald-800 border border-emerald-200";
+        feedback.innerHTML = `<div class="font-bold mb-1"><i class="fas fa-check-circle mr-1 text-emerald-600"></i> 答對了！(+10分)</div><div>${currentQuizData.explain}</div>`;
       } else {
-        btnElement.className = "py-3.5 px-4 rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-800 font-bold text-center text-sm shadow-sm";
-        feedback.className = "text-center py-3 px-4 rounded-xl mb-2 text-sm font-semibold bg-rose-50 text-rose-800 border border-rose-200";
-        feedback.innerHTML = `<i class="fas fa-times-circle text-rose-600 mr-1.5"></i> 答錯囉！正確答案是 <strong>${currentQuizItem.roma}</strong>`;
+        quizStreak = 0;
+        document.getElementById('quiz-streak').innerText = `0 題`;
+        feedback.className = "text-left py-3 px-4 rounded-xl mb-4 text-sm bg-rose-50 text-rose-800 border border-rose-200";
+        feedback.innerHTML = `<div class="font-bold mb-1"><i class="fas fa-times-circle mr-1 text-rose-600"></i> 答錯囉！</div><div>${currentQuizData.explain}</div>`;
       }
 
       document.getElementById('quiz-next-btn').classList.remove('hidden');
     }
 
-    // Modal 控制
-    function openExportModal() {
-      document.getElementById('export-modal').classList.remove('hidden');
-    }
-    function closeExportModal() {
-      document.getElementById('export-modal').classList.add('hidden');
+    // --- 6. N5 文法大全渲染 ---
+    function filterGrammar(cat) {
+      currentGrammarCat = cat;
+      document.querySelectorAll('.gcat-btn').forEach(btn => {
+        btn.className = "gcat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap";
+      });
+      document.getElementById(`gcat-${cat}`).className = "gcat-btn px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white shadow-sm whitespace-nowrap";
+      renderGrammarList();
     }
 
-    // 頁面初始化
+    function renderGrammarList() {
+      const container = document.getElementById('grammar-container');
+      container.innerHTML = '';
+
+      const filtered = n5GrammarList.filter(g => currentGrammarCat === 'all' || g.cat === currentGrammarCat);
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between";
+        
+        const examplesHtml = item.examples.map(ex => `
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-between items-center gap-2">
+            <div>
+              <div class="font-bold text-slate-800 text-sm">${ex.jp}</div>
+              <div class="text-xs text-slate-500 mt-0.5">${ex.zh}</div>
+            </div>
+            <button onclick="speakJP('${ex.jp}')" class="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-100/50 flex-shrink-0" title="聆聽例句發音">
+              <i class="fas fa-volume-up"></i>
+            </button>
+          </div>
+        `).join('');
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600">${item.badge}</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-2">${item.title}</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">${item.desc}</p>
+          </div>
+          <div class="space-y-2">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">實用例句</div>
+            ${examplesHtml}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- 初始化 ---
     window.onload = () => {
       renderKanaGrid();
       renderOriginCards();
+      renderVocabList();
       updateFlashcard();
+      renderGrammarList();
     };
   </script>
 </body>
